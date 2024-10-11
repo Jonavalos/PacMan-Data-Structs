@@ -7,7 +7,7 @@ class Celda:
     def incrementar_olor(self):
         """Establece el valor de olor al máximo cuando Pac-Man pasa por la celda."""
         if self.valor != 'pared':  # Solo incrementa si no es una pared
-            self.olor = 1000
+            self.olor = 2000
 
     def decrementar_olor(self):
         """Decrementa el valor de olor hasta llegar a cero."""
