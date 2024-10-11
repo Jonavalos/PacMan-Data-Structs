@@ -10,11 +10,11 @@ pygame.init()
 screen = pygame.display.set_mode((1000, 750))
 
 # background
-background = pygame.image.load('background.png')
+background = pygame.image.load('PNGs/background.png')
 
 # caption and icon
 pygame.display.set_caption("Pac-Man")
-icon = pygame.image.load('game.png')
+icon = pygame.image.load('PNGs/game.png')
 pygame.display.set_icon(icon)
 
 
