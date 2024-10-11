@@ -1,6 +1,6 @@
 import pygame
 from Mapa import *  # Aquí tienes tu mapa cargado
-
+n=0
 # Initialize pygame
 pygame.init()
 
@@ -27,29 +27,46 @@ pacman_x = 1  # Columna de la matriz
 pacman_y = 1  # Fila de la matriz
 # Velocidad de movimiento (en celdas)
 velocidad = 1
-#direccion: 1Left 2Right 3Up 4Down
+# Dirección: 1Left 2Right 3Up 4Down
 direccion = 2
 
 # Función para dibujar el mapa en pantalla
 def dibujar_mapa(mapa):
     for y, fila in enumerate(mapa):
         for x, celda in enumerate(fila):
-            color = (23, 56, 110) if celda.valor == 'pared' else (255, 255, 255)  # Azul para pared, blanco para otros
+            # Cambiar color basado en el valor del olor
+            if celda.valor == 'pared':
+                color = (23, 56, 110)  # Azul para pared
+            else:
+                color = (0,0,0)
+                if celda.olor >= 1:
+                    color = (214, 90, 104)
+                if 500 < celda.olor < 800:
+                    color = (255, 46, 70)
+                if celda.olor >= 800:
+                    color = (255, 0, 0)
             pygame.draw.rect(screen, color, pygame.Rect(x * ANCHO_CELDA, y * ALTO_CELDA, ANCHO_CELDA, ALTO_CELDA))
 
 # Función para dibujar a Pac-Man en la celda correspondiente
-def dibujar_pacman(pacman_x, pacman_y, n):
+def dibujar_pacman(pacman_x, pacman_y, direccion):
     # Convertir las coordenadas de la celda a coordenadas en píxeles
     pos_x = pacman_x * ANCHO_CELDA
     pos_y = pacman_y * ALTO_CELDA
-    if (n == 1):
+    if direccion == 1:
         screen.blit(pacman_Left_img, (pos_x, pos_y))
-    if (n == 2):
+    if direccion == 2:
         screen.blit(pacman_Right_img, (pos_x, pos_y))
-    if (n == 3):
+    if direccion == 3:
         screen.blit(pacman_Up_img, (pos_x, pos_y))
-    if (n == 4):
+    if direccion == 4:
         screen.blit(pacman_Down_img, (pos_x, pos_y))
+
+# Función para reducir el olor de todas las celdas
+def reducir_olor(mapa):
+    for fila in mapa:
+        for celda in fila:
+            celda.decrementar_olor()  # Llama una función para reducir el olor en cada iteración
+
 
 # Game loop
 running = True
@@ -60,40 +77,31 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-        #keys = pygame.key.get_pressed()
         if event.type == pygame.KEYDOWN:  # pressing key up, down, left, right (movement)
             if event.key == pygame.K_LEFT and pacman_x > 0 and mapa[pacman_y][pacman_x - 1].valor != 'pared':  # Izquierda
                 pacman_x -= velocidad
-                direccion=1
-            if event.key == pygame.K_RIGHT and pacman_x < len(mapa[0]) - 1 and mapa[pacman_y][
-                pacman_x + 1].valor != 'pared':  # Derecha
+                direccion = 1
+            if event.key == pygame.K_RIGHT and pacman_x < len(mapa[0]) - 1 and mapa[pacman_y][pacman_x + 1].valor != 'pared':  # Derecha
                 pacman_x += velocidad
-                direccion=2
+                direccion = 2
             if event.key == pygame.K_UP and pacman_y > 0 and mapa[pacman_y - 1][pacman_x].valor != 'pared':  # Arriba
                 pacman_y -= velocidad
-                direccion=3
+                direccion = 3
             if event.key == pygame.K_DOWN and pacman_y < len(mapa) - 1 and mapa[pacman_y + 1][pacman_x].valor != 'pared':  # Abajo
                 pacman_y += velocidad
-                direccion=4
+                direccion = 4
 
+    # Incrementar el olor de la celda actual de Pac-Man
+    mapa[pacman_y][pacman_x].incrementar_olor()
 
-
-
-    # Función para dibujar el mapa en pantalla
-    def dibujar_mapa(mapa):
-        for y, fila in enumerate(mapa):
-            for x, celda in enumerate(fila):
-                color = (23, 56, 110) if celda.valor == 'pared' else (
-                255, 255, 255)  # Azul para pared, blanco para otros
-                pygame.draw.rect(screen, color, pygame.Rect(x * ANCHO_CELDA, y * ALTO_CELDA, ANCHO_CELDA, ALTO_CELDA))
-
-    # Mover Pac-Man con las teclas de flechas
-
-
+    # Reducir el olor de todas las celdas en cada iteración
+    reducir_olor(mapa)
 
     # Dibujar el mapa y a Pac-Man
     dibujar_mapa(mapa)
     dibujar_pacman(pacman_x, pacman_y, direccion)
+    n+=1
+    print(mapa[pacman_y][pacman_x].id, mapa[pacman_y-1][pacman_x-1].olor, mapa[pacman_y][pacman_x].olor, n)
 
     # Actualizar la pantalla
     pygame.display.flip()
