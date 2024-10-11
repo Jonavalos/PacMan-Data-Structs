@@ -1,11 +1,11 @@
 from Celda import *
 
+# Dimensiones de las celdas y de la pantalla
 
-
-
-
-
-
+MAPA_ANCHO = 1000
+MAPA_ALTO = 700
+ANCHO_CELDA = 36
+ALTO_CELDA = 36
 
 mapa = [     #1 borde,   13,14,15 columna (pared),  27 borde.  En primera y ultima todas son pared
     [Celda(1, 'pared'), Celda(2, 'pared'), Celda(3, 'pared'), Celda(4, 'pared'), Celda(5, 'pared'), Celda(6, 'pared'), Celda(7, 'pared'), Celda(8, 'pared'), Celda(9, 'pared'), Celda(10, 'pared'), Celda(11, 'pared'), Celda(12, 'pared'), Celda(13, 'pared'), Celda(14, 'pared'), Celda(15, 'pared'), Celda(16, 'pared'), Celda(17, 'pared'), Celda(18, 'pared'), Celda(19, 'pared'), Celda(20, 'pared'), Celda(21, 'pared'), Celda(22, 'pared'), Celda(23, 'pared'), Celda(24, 'pared'), Celda(25, 'pared'), Celda(26, 'pared'), Celda(27, 'pared')],
