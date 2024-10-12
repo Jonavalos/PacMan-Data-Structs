@@ -10,6 +10,14 @@ screen = pygame.display.set_mode((MAPA_ANCHO, MAPA_ALTO))
 
 # Background
 background = pygame.image.load('PNGs/background.png')
+background_inicio = pygame.image.load('PNGs/background_inicio.png')
+
+#Pantalla de inicio
+# Obtener las dimensiones de la imagen
+image_rect = background_inicio.get_rect()
+# Calcular la posición para centrar la imagen
+inicio_x = (MAPA_ANCHO - image_rect.width) // 2  # Posición X
+inicio_y = (MAPA_ALTO - image_rect.height) // 2  # Posición Y
 
 # Caption and icon
 pygame.display.set_caption("Pac-Man")
@@ -81,7 +89,10 @@ def mover_pacman(mapa, pacman_x, pacman_y, direccion, velocidad):
 
 mixer.music.load('musica/pacman_beginning.wav')
 mixer.music.play()
-
+screen.fill((255, 255, 255))  # RGB
+screen.blit(background_inicio, (inicio_x, inicio_y))
+pygame.display.flip()
+pygame.time.wait(4000)
 # Game loop
 running = True
 while running:
