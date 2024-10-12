@@ -1,7 +1,7 @@
 class Celda:
     def __init__(self, id, valor):
         self.id = id           # Identificador único de la celda
-        self.valor = valor     # Tipo de celda ('pared', 'pared', 'pacman', etc.)
+        self.valor = valor     # Tipo de celda ('pared', 'punto', 'pacman', etc.)
         self.olor = 0          # Valor del "olor" a Pac-Man
 
     def incrementar_olor(self):

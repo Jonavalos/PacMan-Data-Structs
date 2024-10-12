@@ -39,6 +39,21 @@ velocidad = 1
 # Dirección: 1Left 2Right 3Up 4Down
 direccion = 2
 
+def inicializar_mapa(mapa):
+    for fila in mapa:
+        for celda in fila:
+            if celda.valor != 'pared':  # Si no es pared
+                celda.valor = 'punto'   # Iniciar con 'punto'
+    #y, x. El spawn de los fantasmas va sin puntos
+    mapa[9][13].valor = 'vacio'
+    mapa[10][12].valor = 'vacio'
+    mapa[10][13].valor = 'vacio'
+    mapa[10][14].valor = 'vacio'
+    mapa[11][12].valor = 'vacio'
+    mapa[11][13].valor = 'vacio'
+    mapa[11][14].valor = 'vacio'
+
+
 # Función para dibujar el mapa en pantalla
 def dibujar_mapa(mapa):
     for y, fila in enumerate(mapa):
@@ -55,6 +70,16 @@ def dibujar_mapa(mapa):
                 if celda.olor >= 20:
                     color = (255, 0, 0)
             pygame.draw.rect(screen, color, pygame.Rect(x * ANCHO_CELDA, y * ALTO_CELDA, ANCHO_CELDA, ALTO_CELDA))
+
+            if celda.valor == 'punto':
+                punto_color = (255, 255, 255)  # Blanco para el punto
+                punto_size = ANCHO_CELDA // 4  # Tamaño del punto
+                # Calcular la posición centrada del cuadrito dentro de la celda
+                punto_x = (x * ANCHO_CELDA) + (ANCHO_CELDA // 2) - (punto_size // 2)
+                punto_y = (y * ALTO_CELDA) + (ALTO_CELDA // 2) - (punto_size // 2)
+                # Dibujar el cuadrito
+                pygame.draw.rect(screen, punto_color, pygame.Rect(punto_x, punto_y, punto_size, punto_size))
+
 
 # Función para dibujar a Pac-Man en la celda correspondiente
 def dibujar_pacman(pacman_x, pacman_y, direccion):
@@ -75,7 +100,9 @@ def reducir_olor(mapa):
     for fila in mapa:
         for celda in fila:
             celda.decrementar_olor()  # Llama una función para reducir el olor en cada iteración
-# Función para mover a Pac-Man
+
+
+# Función para mover a Pac-Man y actualizar el valor de la celda
 def mover_pacman(mapa, pacman_x, pacman_y, direccion, velocidad):
     if direccion == 1 and pacman_x > 0 and mapa[pacman_y][pacman_x - 1].valor != 'pared':  # Izquierda
         pacman_x -= velocidad
@@ -85,7 +112,20 @@ def mover_pacman(mapa, pacman_x, pacman_y, direccion, velocidad):
         pacman_y -= velocidad
     if direccion == 4 and pacman_y < len(mapa) - 1 and mapa[pacman_y + 1][pacman_x].valor != 'pared':  # Abajo
         pacman_y += velocidad
+
+    # Cambiar el valor de la celda a 'vacio' si Pac-Man pasa por una celda con 'punto'
+    if mapa[pacman_y][pacman_x].valor == 'punto':
+        mapa[pacman_y][pacman_x].valor = 'vacio'
+        #sonido de chomp
+        mixer.music.load('musica/pacman_chomp2.wav')
+        mixer.music.play()
+
     return pacman_x, pacman_y
+
+
+# Inicializar el mapa con 'punto' en celdas no pared
+inicializar_mapa(mapa)
+
 
 mixer.music.load('musica/pacman_beginning.wav')
 mixer.music.play()
@@ -112,7 +152,7 @@ while running:
             if event.key == pygame.K_DOWN:
                 direccion = 4
 
-    # Mover a Pac-Man automáticamente en la dirección actual
+    # Mover Pac-Man y actualizar el mapa
     pacman_x, pacman_y = mover_pacman(mapa, pacman_x, pacman_y, direccion, velocidad)
 
     # Incrementar el olor de la celda actual de Pac-Man
@@ -125,9 +165,15 @@ while running:
     if pacman_x == 0 and pacman_y == 12:
         print("TP")
         pacman_x = 25
+        # 25,12 y 26,12 vacio en tp
+        mapa[pacman_y][pacman_x].valor = 'vacio'
+        mapa[pacman_y][pacman_x+1].valor = 'vacio'
+
     if pacman_x == 26 and pacman_y == 12:
         print("TP")
         pacman_x = 1
+        mapa[pacman_y][pacman_x].valor = 'vacio'
+        mapa[pacman_y][pacman_x-1].valor = 'vacio'
 
     # Dibujar el mapa y a Pac-Man
     dibujar_mapa(mapa)
