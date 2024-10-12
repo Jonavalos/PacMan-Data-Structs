@@ -1,4 +1,5 @@
 import pygame
+from pygame import mixer
 from Mapa import *  # Aquí tienes tu mapa cargado
 n=0
 # Initialize pygame
@@ -77,6 +78,9 @@ def mover_pacman(mapa, pacman_x, pacman_y, direccion, velocidad):
     if direccion == 4 and pacman_y < len(mapa) - 1 and mapa[pacman_y + 1][pacman_x].valor != 'pared':  # Abajo
         pacman_y += velocidad
     return pacman_x, pacman_y
+
+mixer.music.load('musica/pacman_beginning.wav')
+mixer.music.play()
 
 # Game loop
 running = True
