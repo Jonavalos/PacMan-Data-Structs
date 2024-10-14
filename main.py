@@ -11,13 +11,20 @@ screen = pygame.display.set_mode((MAPA_ANCHO, MAPA_ALTO))
 # Background
 background = pygame.image.load('PNGs/background.png')
 background_inicio = pygame.image.load('PNGs/background_inicio.png')
+background_wwcd = pygame.image.load('PNGs/wwcd2.png')
 
-#Pantalla de inicio
-# Obtener las dimensiones de la imagen
+
+# Obtener las dimensiones de las imagenes para centrarlas
+
 image_rect = background_inicio.get_rect()
 # Calcular la posición para centrar la imagen
 inicio_x = (MAPA_ANCHO - image_rect.width) // 2  # Posición X
 inicio_y = (MAPA_ALTO - image_rect.height) // 2  # Posición Y
+
+image_rect2 = background_wwcd.get_rect()
+# Calcular la posición para centrar la imagen
+wwcd_x = (MAPA_ANCHO - image_rect2.width) // 2  # Posición X
+wwcd_y = (MAPA_ALTO - image_rect2.height) // 2  # Posición Y
 
 # Caption and icon
 pygame.display.set_caption("Pac-Man")
@@ -45,13 +52,13 @@ def inicializar_mapa(mapa):
             if celda.valor != 'pared':  # Si no es pared
                 celda.valor = 'punto'   # Iniciar con 'punto'
     #y, x. El spawn de los fantasmas va sin puntos
-    mapa[9][13].valor = 'vacio'
-    mapa[10][12].valor = 'vacio'
-    mapa[10][13].valor = 'vacio'
-    mapa[10][14].valor = 'vacio'
-    mapa[11][12].valor = 'vacio'
-    mapa[11][13].valor = 'vacio'
-    mapa[11][14].valor = 'vacio'
+    # mapa[9][13].valor = 'vacio'
+    # mapa[10][12].valor = 'vacio'
+    # mapa[10][13].valor = 'vacio'
+    # mapa[10][14].valor = 'vacio'
+    # mapa[11][12].valor = 'vacio'
+    # mapa[11][13].valor = 'vacio'
+    # mapa[11][14].valor = 'vacio'
 
 
 # Función para dibujar el mapa en pantalla
@@ -80,6 +87,12 @@ def dibujar_mapa(mapa):
                 # Dibujar el cuadrito
                 pygame.draw.rect(screen, punto_color, pygame.Rect(punto_x, punto_y, punto_size, punto_size))
 
+def is_victoria(mapa): #Verifica si ya no quedan puntos (si ya ganó)
+    for fila in mapa:
+        for celda in fila:
+            if celda.valor == 'punto':
+                return False
+    return True
 
 # Función para dibujar a Pac-Man en la celda correspondiente
 def dibujar_pacman(pacman_x, pacman_y, direccion):
@@ -180,6 +193,14 @@ while running:
     dibujar_pacman(pacman_x, pacman_y, direccion)
     n+=1
     print(mapa[pacman_y][pacman_x].id, mapa[pacman_y-1][pacman_x-1].olor, mapa[pacman_y][pacman_x].olor, n, pacman_x, pacman_y)
+
+    if is_victoria(mapa):
+        screen.fill((255, 255, 255))  # RGB
+        screen.blit(background_wwcd, (inicio_x, inicio_y))
+        pygame.display.flip()
+        pygame.time.wait(2000)
+        running = False
+
 
     # Actualizar la pantalla
     pygame.display.flip()
