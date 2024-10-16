@@ -42,7 +42,7 @@ pacman_Left_img = pygame.image.load('PNGs/pacmanLeft.png')      #2
 pacman_Up_img = pygame.image.load('PNGs/pacmanUp.png')          #3
 pacman_Down_img = pygame.image.load('PNGs/pacmanDown.png')      #4
 
-# Posición inicial de Pac-Man en el mapa (coordenadas de la celda)
+# Posicion inicial de Pac-Man en el mapa (coordenadas de la celda)
 pacman_x = 1  # Columna de la matriz
 pacman_y = 1  # Fila de la matriz
 # Velocidad de movimiento (en celdas)
@@ -111,7 +111,7 @@ def dibujar_mapa(mapa):
                 if celda.valor == 'punto':
                     punto_color = (255, 255, 255)  # Blanco para el punto
                     punto_size = ANCHO_CELDA // 4  # Tamaño del punto
-                    # Calcular la posición centrada del cuadrito dentro de la celda
+                    # Calcular la posicion centrada del cuadrito dentro de la celda
                     punto_x = (x * ANCHO_CELDA) + (ANCHO_CELDA // 2) - (punto_size // 2)
                     punto_y = (y * ALTO_CELDA) + (ALTO_CELDA // 2) - (punto_size // 2)
                     # Dibujar el cuadrito
@@ -123,11 +123,6 @@ def is_victoria(mapa): #Verifica si ya no quedan puntos (si ya ganó). Se va a o
     if not diccionario_celdas_puntos:
         return True
     return False
-    # for fila in mapa:
-    #     for celda in fila:
-    #         if celda.valor == 'punto':
-    #             return False
-    # return True
 
 # Dibujar a PACMAN en la celda correspondiente (GPT)
 def dibujar_pacman(pacman_x, pacman_y, direccion):
@@ -242,7 +237,7 @@ while running:
             del diccionario_celdas_puntos[pos_tp]
             del diccionario_celdas_puntos[pos_previa_tp]
 
-    # Dibujar el mapa y a Pac-Man
+    # Dibujar el mapa y a PACMAN
     dibujar_mapa(mapa)
     dibujar_pacman(pacman_x, pacman_y, direccion)
     n+=1
