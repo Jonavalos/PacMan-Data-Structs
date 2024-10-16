@@ -171,12 +171,6 @@ def mover_pacman(mapa, pacman_x, pacman_y, direccion, velocidad):
         mixer.music.play()
 
 
-    # # Cambiar el valor de la celda a 'vacio' si Pac-Man pasa por una celda con 'punto'
-    # if mapa[pacman_y][pacman_x].valor == 'punto':
-    #     mapa[pacman_y][pacman_x].valor = 'vacio'
-    #     #sonido de chomp
-    #     mixer.music.load('musica/pacman_chomp2.wav')
-    #     mixer.music.play()
 
     return pacman_x, pacman_y
 
@@ -219,29 +213,35 @@ while running:
     # Reducir el olor de todas las celdas en cada iteración
     reducir_olor(mapa)
 
-    #teleport   # 25,12 y 26,12 vacio en tp
+    pos_actual = (pacman_x, pacman_y)
+    if pos_actual in diccionario_celdas_puntos:
+        mapa[pacman_y][pacman_x].valor = 'vacio'
+        del diccionario_celdas_puntos[pos_actual]  # elimina solo del diccionario de puntos
+
+
+    #TELEPORT (ENDER PEARLLL)
     if pacman_x == 0 and pacman_y == 12:
-        pos_actual = (pacman_x, pacman_y)
         print("TP")
-        pacman_x = 25
-        if pos_actual in diccionario_celdas_puntos:
-            mapa[12][25].valor = 'vacio'
-            pos_actual2 = (26, 12)
-            mapa[12][26].valor = 'vacio'
-            del diccionario_celdas_puntos[pos_actual]  # elimina solo del diccionario de puntos
-            del diccionario_celdas_puntos[pos_actual2]  # elimina solo del diccionario de puntos
+        pos_tp = (25, 12)
+        pos_previa_tp = (26, 12) #en realidad es la posicion siguiente, pero con respecto al pacman es la que le queda de espaldas
+        if pos_tp in diccionario_celdas_puntos:
+            pacman_x = 25
+            # xy-> 25,12 y 26,12 vacio en tp
+            mapa[pacman_y][pacman_x].valor = 'vacio'
+            mapa[pacman_y][pacman_x+1].valor = 'vacio'
+            del diccionario_celdas_puntos[pos_tp]
+            del diccionario_celdas_puntos[pos_previa_tp]
     if pacman_x == 26 and pacman_y == 12:
-        pos_actual = (pacman_x, pacman_y)
         print("TP")
-        pacman_x = 1
-        if pos_actual in diccionario_celdas_puntos:
-            mapa[12][1].valor = 'vacio'
-            pos_actual2 = (0, 12)
-            mapa[12][0].valor = 'vacio'
-            del diccionario_celdas_puntos[pos_actual]  # elimina solo del diccionario de puntos
-            del diccionario_celdas_puntos[pos_actual2]  # elimina solo del diccionario de puntos
-
-
+        pos_tp = (1, 12)
+        pos_previa_tp = (0, 12)
+        if pos_tp in diccionario_celdas_puntos:
+            pacman_x = 1
+            # xy-> 1,12 y 0,12 vacio en tp
+            mapa[pacman_y][pacman_x].valor = 'vacio'
+            mapa[pacman_y][pacman_x-1].valor = 'vacio'
+            del diccionario_celdas_puntos[pos_tp]
+            del diccionario_celdas_puntos[pos_previa_tp]
 
     # Dibujar el mapa y a Pac-Man
     dibujar_mapa(mapa)
