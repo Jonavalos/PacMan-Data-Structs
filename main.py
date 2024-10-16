@@ -145,9 +145,8 @@ def dibujar_pacman(pacman_x, pacman_y, direccion):
 
 # Función para reducir el olor de todas las celdas
 def reducir_olor(mapa):
-    for fila in mapa:
-        for celda in fila:
-            celda.decrementar_olor()  # Llama una función para reducir el olor en cada iteración
+    for (x,y) in diccionario_celdas_items.keys():
+        mapa[y][x].decrementar_olor()
 
 
 # Mover a PACMAN y actualizar el valor de la celda
