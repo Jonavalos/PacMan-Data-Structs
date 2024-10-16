@@ -52,13 +52,13 @@ def inicializar_mapa(mapa):
             if celda.valor != 'pared':  # Si no es pared
                 celda.valor = 'punto'   # Iniciar con 'punto'
     #y, x. El spawn de los fantasmas va sin puntos
-    # mapa[9][13].valor = 'vacio'
-    # mapa[10][12].valor = 'vacio'
-    # mapa[10][13].valor = 'vacio'
-    # mapa[10][14].valor = 'vacio'
-    # mapa[11][12].valor = 'vacio'
-    # mapa[11][13].valor = 'vacio'
-    # mapa[11][14].valor = 'vacio'
+    mapa[9][13].valor = 'vacio'
+    mapa[10][12].valor = 'vacio'
+    mapa[10][13].valor = 'vacio'
+    mapa[10][14].valor = 'vacio'
+    mapa[11][12].valor = 'vacio'
+    mapa[11][13].valor = 'vacio'
+    mapa[11][14].valor = 'vacio'
 
 
 # Función para dibujar el mapa en pantalla
@@ -87,7 +87,7 @@ def dibujar_mapa(mapa):
                 # Dibujar el cuadrito
                 pygame.draw.rect(screen, punto_color, pygame.Rect(punto_x, punto_y, punto_size, punto_size))
 
-def is_victoria(mapa): #Verifica si ya no quedan puntos (si ya ganó)
+def is_victoria(mapa): #Verifica si ya no quedan puntos (si ya ganó). Se va a optimizar mas adelante, por ahora dejar asi.
     for fila in mapa:
         for celda in fila:
             if celda.valor == 'punto':
