@@ -1,5 +1,9 @@
+from pickle import GLOBAL
+
 import pygame
 from pygame import mixer
+from pygame.examples.testsprite import Static
+
 from Mapa import *  # Aquí tienes tu mapa cargado
 n=0
 # Initialize pygame
@@ -46,30 +50,36 @@ velocidad = 1
 # Dirección: 1Left 2Right 3Up 4Down
 direccion = 2
 
+# Diccionario para almacenar las posiciones de las celdas que no sean 'pared'. Para no tener que recorrer toda la matiz en cada vuelta del while
+#me parece que deberia ir dentro del inicializar_mapa pero no se si es posible que otros metodos accedan al diccionario, ver luego.
+# Inicializar dos diccionarios
+diccionario_celdas_puntos= {}        #se modifica con cada movimiento de pacman, elimina por donde va comiendo pacman
+diccionario_celdas_items = {}        #No se modifica. Para tener presente las celdas en las que se puede mover y pueden haber items
+
+
 def inicializar_mapa(mapa):
-    for fila in mapa:
-        for celda in fila:
-            if celda.valor != 'pared':  # Si no es pared
-                celda.valor = 'punto'   # Iniciar con 'punto'
-    #y, x. El spawn de los fantasmas va sin puntos
-    mapa[9][13].valor = 'vacio'
-    mapa[10][12].valor = 'vacio'
-    mapa[10][13].valor = 'vacio'
-    mapa[10][14].valor = 'vacio'
-    mapa[11][12].valor = 'vacio'
-    mapa[11][13].valor = 'vacio'
-    mapa[11][14].valor = 'vacio'
+
+    for y, fila in enumerate(mapa): #para no tener que recorrer toda la matriz verificando si hay puntos. Se eliminan conforme va comiendo pacman
+        for x, celda in enumerate(fila):
+            if celda.valor == 'punto':
+                diccionario_celdas_puntos[(x, y)] = 'punto'
+                diccionario_celdas_items[(x, y)] = 'punto'
+            elif celda.valor == 'fruta':
+                diccionario_celdas_items[(x, y)] = 'fruta'
+
+
 
 
 # Función para dibujar el mapa en pantalla
 def dibujar_mapa(mapa):
     for y, fila in enumerate(mapa):
         for x, celda in enumerate(fila):
+
             # Cambiar color basado en el valor del olor
             if celda.valor == 'pared':
                 color = (23, 56, 110)  # Azul para pared
             else:
-                color = (0,0,0)
+                color = (0, 0, 0)
                 if celda.olor >= 1:
                     color = (214, 90, 104)
                 if 10 < celda.olor < 20:
@@ -78,23 +88,48 @@ def dibujar_mapa(mapa):
                     color = (255, 0, 0)
             pygame.draw.rect(screen, color, pygame.Rect(x * ANCHO_CELDA, y * ALTO_CELDA, ANCHO_CELDA, ALTO_CELDA))
 
-            if celda.valor == 'punto':
-                punto_color = (255, 255, 255)  # Blanco para el punto
-                punto_size = ANCHO_CELDA // 4  # Tamaño del punto
-                # Calcular la posición centrada del cuadrito dentro de la celda
-                punto_x = (x * ANCHO_CELDA) + (ANCHO_CELDA // 2) - (punto_size // 2)
-                punto_y = (y * ALTO_CELDA) + (ALTO_CELDA // 2) - (punto_size // 2)
-                # Dibujar el cuadrito
-                pygame.draw.rect(screen, punto_color, pygame.Rect(punto_x, punto_y, punto_size, punto_size))
+
+            # Comprobar si la celda es 'vacio' y no dibujar nada
+            if celda.valor == 'vacio':
+                continue  # Saltar al siguiente ciclo si la celda es 'vacio'
+
+            # Cambiar color basado en el valor del olor
+            if celda.valor == 'pared':
+                color = (23, 56, 110)  # Azul para pared
+                pygame.draw.rect(screen, color, pygame.Rect(x * ANCHO_CELDA, y * ALTO_CELDA, ANCHO_CELDA, ALTO_CELDA))
+            else:
+                color = (0, 0, 0)
+                if celda.olor >= 1:
+                    color = (214, 90, 104)
+                if 10 < celda.olor < 20:
+                    color = (255, 46, 70)
+                if celda.olor >= 20:
+                    color = (255, 0, 0)
+                pygame.draw.rect(screen, color, pygame.Rect(x * ANCHO_CELDA, y * ALTO_CELDA, ANCHO_CELDA, ALTO_CELDA))
+
+                # Dibujar el punto si corresponde
+                if celda.valor == 'punto':
+                    punto_color = (255, 255, 255)  # Blanco para el punto
+                    punto_size = ANCHO_CELDA // 4  # Tamaño del punto
+                    # Calcular la posición centrada del cuadrito dentro de la celda
+                    punto_x = (x * ANCHO_CELDA) + (ANCHO_CELDA // 2) - (punto_size // 2)
+                    punto_y = (y * ALTO_CELDA) + (ALTO_CELDA // 2) - (punto_size // 2)
+                    # Dibujar el cuadrito
+                    pygame.draw.rect(screen, punto_color, pygame.Rect(punto_x, punto_y, punto_size, punto_size))
+
 
 def is_victoria(mapa): #Verifica si ya no quedan puntos (si ya ganó). Se va a optimizar mas adelante, por ahora dejar asi.
-    for fila in mapa:
-        for celda in fila:
-            if celda.valor == 'punto':
-                return False
-    return True
+    # Verificar si quedan celdas con puntos
+    if not diccionario_celdas_puntos:
+        return True
+    return False
+    # for fila in mapa:
+    #     for celda in fila:
+    #         if celda.valor == 'punto':
+    #             return False
+    # return True
 
-# Función para dibujar a Pac-Man en la celda correspondiente
+# Dibujar a PACMAN en la celda correspondiente (GPT)
 def dibujar_pacman(pacman_x, pacman_y, direccion):
     # Convertir las coordenadas de la celda a coordenadas en píxeles
     pos_x = pacman_x * ANCHO_CELDA
@@ -115,7 +150,7 @@ def reducir_olor(mapa):
             celda.decrementar_olor()  # Llama una función para reducir el olor en cada iteración
 
 
-# Función para mover a Pac-Man y actualizar el valor de la celda
+# Mover a PACMAN y actualizar el valor de la celda
 def mover_pacman(mapa, pacman_x, pacman_y, direccion, velocidad):
     if direccion == 1 and pacman_x > 0 and mapa[pacman_y][pacman_x - 1].valor != 'pared':  # Izquierda
         pacman_x -= velocidad
@@ -126,12 +161,22 @@ def mover_pacman(mapa, pacman_x, pacman_y, direccion, velocidad):
     if direccion == 4 and pacman_y < len(mapa) - 1 and mapa[pacman_y + 1][pacman_x].valor != 'pared':  # Abajo
         pacman_y += velocidad
 
-    # Cambiar el valor de la celda a 'vacio' si Pac-Man pasa por una celda con 'punto'
-    if mapa[pacman_y][pacman_x].valor == 'punto':
+    # Cuando pasa PACMAN, actualiza valor, eliminca del diccionario y hace sonido de CHOMP (suena horrible pero es lo que hay)
+    pos_actual = (pacman_x, pacman_y)
+    if pos_actual in diccionario_celdas_puntos:
         mapa[pacman_y][pacman_x].valor = 'vacio'
-        #sonido de chomp
+        del diccionario_celdas_puntos[pos_actual]  # elimina solo del diccionario de puntos
+        # sonido de chomp
         mixer.music.load('musica/pacman_chomp2.wav')
         mixer.music.play()
+
+
+    # # Cambiar el valor de la celda a 'vacio' si Pac-Man pasa por una celda con 'punto'
+    # if mapa[pacman_y][pacman_x].valor == 'punto':
+    #     mapa[pacman_y][pacman_x].valor = 'vacio'
+    #     #sonido de chomp
+    #     mixer.music.load('musica/pacman_chomp2.wav')
+    #     mixer.music.play()
 
     return pacman_x, pacman_y
 
@@ -174,19 +219,29 @@ while running:
     # Reducir el olor de todas las celdas en cada iteración
     reducir_olor(mapa)
 
-    #teleport
+    #teleport   # 25,12 y 26,12 vacio en tp
     if pacman_x == 0 and pacman_y == 12:
+        pos_actual = (pacman_x, pacman_y)
         print("TP")
         pacman_x = 25
-        # 25,12 y 26,12 vacio en tp
-        mapa[pacman_y][pacman_x].valor = 'vacio'
-        mapa[pacman_y][pacman_x+1].valor = 'vacio'
-
+        if pos_actual in diccionario_celdas_puntos:
+            mapa[12][25].valor = 'vacio'
+            pos_actual2 = (26, 12)
+            mapa[12][26].valor = 'vacio'
+            del diccionario_celdas_puntos[pos_actual]  # elimina solo del diccionario de puntos
+            del diccionario_celdas_puntos[pos_actual2]  # elimina solo del diccionario de puntos
     if pacman_x == 26 and pacman_y == 12:
+        pos_actual = (pacman_x, pacman_y)
         print("TP")
         pacman_x = 1
-        mapa[pacman_y][pacman_x].valor = 'vacio'
-        mapa[pacman_y][pacman_x-1].valor = 'vacio'
+        if pos_actual in diccionario_celdas_puntos:
+            mapa[12][1].valor = 'vacio'
+            pos_actual2 = (0, 12)
+            mapa[12][0].valor = 'vacio'
+            del diccionario_celdas_puntos[pos_actual]  # elimina solo del diccionario de puntos
+            del diccionario_celdas_puntos[pos_actual2]  # elimina solo del diccionario de puntos
+
+
 
     # Dibujar el mapa y a Pac-Man
     dibujar_mapa(mapa)
