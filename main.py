@@ -4,7 +4,7 @@ import pygame
 from pygame import mixer
 from pygame.examples.testsprite import Static
 
-from Mapa import *  # Aquí tienes tu mapa cargado
+from Mapa import *
 n=0
 # Initialize pygame
 pygame.init()
@@ -51,10 +51,10 @@ velocidad = 1
 direccion = 2
 
 # Diccionario para almacenar las posiciones de las celdas que no sean 'pared'. Para no tener que recorrer toda la matiz en cada vuelta del while
-#me parece que deberia ir dentro del inicializar_mapa pero no se si es posible que otros metodos accedan al diccionario, ver luego.
 # Inicializar dos diccionarios
 diccionario_celdas_puntos= {}        #se modifica con cada movimiento de pacman, elimina por donde va comiendo pacman
 diccionario_celdas_items = {}        #No se modifica. Para tener presente las celdas en las que se puede mover y pueden haber items
+diccionario_celdas_pared = {}        #No se modifica. Para dibujar el mapa
 
 
 def inicializar_mapa(mapa):
@@ -66,56 +66,73 @@ def inicializar_mapa(mapa):
                 diccionario_celdas_items[(x, y)] = 'punto'
             elif celda.valor == 'fruta':
                 diccionario_celdas_items[(x, y)] = 'fruta'
+            elif celda.valor == 'pared':
+                diccionario_celdas_pared[(x, y)] = 'pared'
 
 
 
 
-# Función para dibujar el mapa en pantalla
+# Dibujar el mapa en pantalla
 def dibujar_mapa(mapa):
-    for y, fila in enumerate(mapa):
-        for x, celda in enumerate(fila):
 
-            # Cambiar color basado en el valor del olor
-            if celda.valor == 'pared':
-                color = (23, 56, 110)  # Azul para pared
-            else:
-                color = (0, 0, 0)
-                if celda.olor >= 1:
-                    color = (214, 90, 104)
-                if 10 < celda.olor < 20:
-                    color = (255, 46, 70)
-                if celda.olor >= 20:
-                    color = (255, 0, 0)
+    for (x, y) in diccionario_celdas_pared.keys(): #    Dibujar paredes
+        if mapa[y][x].valor == 'pared':
+            color = (23, 56, 110)  # Azul para pared
+        else:
+            color = (0, 0, 0)
+            if mapa[y][x].olor >= 1:
+                color = (214, 90, 104)
+            if 10 < mapa[y][x].olor < 20:
+                color = (255, 46, 70)
+            if mapa[y][x].olor >= 20:
+                color = (255, 0, 0)
+        pygame.draw.rect(screen, color, pygame.Rect(x * ANCHO_CELDA, y * ALTO_CELDA, ANCHO_CELDA, ALTO_CELDA))
+
+
+    for (x, y) in diccionario_celdas_items.keys(): #Dibujar rastro de olor (quitar en version final)
+        mapa[y][x].decrementar_olor()
+
+        # Cambiar color basado en el valor del olor
+        if mapa[y][x].valor == 'pared':
+            color = (23, 56, 110)  # Azul para pared
+        else:
+            color = (0, 0, 0)
+            if mapa[y][x].olor >= 1:
+                color = (214, 90, 104)
+            if 10 < mapa[y][x].olor < 20:
+                color = (255, 46, 70)
+            if mapa[y][x].olor >= 20:
+                color = (255, 0, 0)
+        pygame.draw.rect(screen, color, pygame.Rect(x * ANCHO_CELDA, y * ALTO_CELDA, ANCHO_CELDA, ALTO_CELDA))
+
+
+        # Comprobar si la celda es 'vacio' y no dibujar nada
+        if mapa[y][x].valor == 'vacio':
+            continue  # Saltar al siguiente ciclo si la celda es 'vacio'
+
+        # Cambiar color basado en el valor del olor
+        if mapa[y][x].valor == 'pared':
+            color = (23, 56, 110)  # Azul para pared
+            pygame.draw.rect(screen, color, pygame.Rect(x * ANCHO_CELDA, y * ALTO_CELDA, ANCHO_CELDA, ALTO_CELDA))
+        else:
+            color = (0, 0, 0)
+            if mapa[y][x].olor >= 1:
+                color = (214, 90, 104)
+            if 10 < mapa[y][x].olor < 20:
+                color = (255, 46, 70)
+            if mapa[y][x].olor >= 20:
+                color = (255, 0, 0)
             pygame.draw.rect(screen, color, pygame.Rect(x * ANCHO_CELDA, y * ALTO_CELDA, ANCHO_CELDA, ALTO_CELDA))
 
-
-            # Comprobar si la celda es 'vacio' y no dibujar nada
-            if celda.valor == 'vacio':
-                continue  # Saltar al siguiente ciclo si la celda es 'vacio'
-
-            # Cambiar color basado en el valor del olor
-            if celda.valor == 'pared':
-                color = (23, 56, 110)  # Azul para pared
-                pygame.draw.rect(screen, color, pygame.Rect(x * ANCHO_CELDA, y * ALTO_CELDA, ANCHO_CELDA, ALTO_CELDA))
-            else:
-                color = (0, 0, 0)
-                if celda.olor >= 1:
-                    color = (214, 90, 104)
-                if 10 < celda.olor < 20:
-                    color = (255, 46, 70)
-                if celda.olor >= 20:
-                    color = (255, 0, 0)
-                pygame.draw.rect(screen, color, pygame.Rect(x * ANCHO_CELDA, y * ALTO_CELDA, ANCHO_CELDA, ALTO_CELDA))
-
-                # Dibujar el punto si corresponde
-                if celda.valor == 'punto':
-                    punto_color = (255, 255, 255)  # Blanco para el punto
-                    punto_size = ANCHO_CELDA // 4  # Tamaño del punto
-                    # Calcular la posicion centrada del cuadrito dentro de la celda
-                    punto_x = (x * ANCHO_CELDA) + (ANCHO_CELDA // 2) - (punto_size // 2)
-                    punto_y = (y * ALTO_CELDA) + (ALTO_CELDA // 2) - (punto_size // 2)
-                    # Dibujar el cuadrito
-                    pygame.draw.rect(screen, punto_color, pygame.Rect(punto_x, punto_y, punto_size, punto_size))
+            # Dibujar el punto si corresponde
+            if mapa[y][x].valor == 'punto':
+                punto_color = (255, 255, 255)  # Blanco para el punto
+                punto_size = ANCHO_CELDA // 4  # Tamaño del punto  (pedir opinion del tamaño)
+                # Calcular la posicion centrada del cuadrito dentro de la celda
+                punto_x = (x * ANCHO_CELDA) + (ANCHO_CELDA // 2) - (punto_size // 2)
+                punto_y = (y * ALTO_CELDA) + (ALTO_CELDA // 2) - (punto_size // 2)
+                # Dibujar el cuadrito blanco
+                pygame.draw.rect(screen, punto_color, pygame.Rect(punto_x, punto_y, punto_size, punto_size))
 
 
 def is_victoria(mapa): #Verifica si ya no quedan puntos (si ya ganó). Se va a optimizar mas adelante, por ahora dejar asi.
@@ -138,7 +155,7 @@ def dibujar_pacman(pacman_x, pacman_y, direccion):
     if direccion == 4:
         screen.blit(pacman_Down_img, (pos_x, pos_y))
 
-# Función para reducir el olor de todas las celdas
+# Reducir olor de todas las celdas conforme camina PACMAN
 def reducir_olor(mapa):
     for (x,y) in diccionario_celdas_items.keys():
         mapa[y][x].decrementar_olor()
@@ -198,7 +215,7 @@ while running:
             if event.key == pygame.K_DOWN:
                 direccion = 4
 
-    # Mover Pac-Man y actualizar el mapa
+    # Mover al PACMAN y actualizar el mapa
     pacman_x, pacman_y = mover_pacman(mapa, pacman_x, pacman_y, direccion, velocidad)
 
     # Incrementar el olor de la celda actual de Pac-Man
