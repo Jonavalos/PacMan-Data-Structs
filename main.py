@@ -258,9 +258,9 @@ while running:
     # Dibujar el mapa y a PACMAN
     dibujar_mapa(mapa)
     dibujar_pacman(pacman_x, pacman_y, direccion)
-    n+=1
+    n+=1    #cantidad de iteraciones
     print(mapa[pacman_y][pacman_x].id, mapa[pacman_y-1][pacman_x-1].olor, mapa[pacman_y][pacman_x].olor, n, pacman_x, pacman_y)
-
+#creo que mapa[pacman_y-1][pacman_x-1].olor, es un poco ilogico porque al ser y-1 x-1, estaria en diagonal de Pacman
     if is_victoria(mapa):
         screen.fill((255, 255, 255))  # RGB
         screen.blit(background_wwcd, (inicio_x, inicio_y))
