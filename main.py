@@ -231,12 +231,12 @@ while running:
 
 
     #TELEPORT (ENDER PEARLLL)
-    if pacman_x == 0 and pacman_y == 12:
+    if pacman_x == 0 and pacman_y == 12:    #and direccion == left
         print("TP")
         pos_tp = (25, 12)
         pos_previa_tp = (26, 12) #en realidad es la posicion siguiente, pero con respecto al pacman es la que le queda de espaldas
+        pacman_x = 25   #Porque 25? Se esta saltando la celda 26, si se cambia da error, pero no entiendo porque
         if pos_tp in diccionario_celdas_puntos:
-            pacman_x = 25
             # xy-> 25,12 y 26,12 vacio en tp
             mapa[pacman_y][pacman_x].valor = 'vacio'
             mapa[pacman_y][pacman_x+1].valor = 'vacio'
@@ -246,8 +246,9 @@ while running:
         print("TP")
         pos_tp = (1, 12)
         pos_previa_tp = (0, 12)
+        pacman_x = 1
         if pos_tp in diccionario_celdas_puntos:
-            pacman_x = 1
+
             # xy-> 1,12 y 0,12 vacio en tp
             mapa[pacman_y][pacman_x].valor = 'vacio'
             mapa[pacman_y][pacman_x-1].valor = 'vacio'
