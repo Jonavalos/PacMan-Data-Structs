@@ -235,7 +235,7 @@ while running:
         print("TP")
         pos_tp = (25, 12)
         pos_previa_tp = (26, 12) #en realidad es la posicion siguiente, pero con respecto al pacman es la que le queda de espaldas
-        pacman_x = 25   #Porque 25? Se esta saltando la celda 26, si se cambia da error, pero no entiendo porque
+        pacman_x = 25   #Porque 25? Se esta saltando la celda 26, si se cambia da error, pero no entiendo porque(Creo que es para que no se encicle)
         if pos_tp in diccionario_celdas_puntos:
             # xy-> 25,12 y 26,12 vacio en tp
             mapa[pacman_y][pacman_x].valor = 'vacio'
