@@ -231,7 +231,7 @@ while running:
 
 
     #TELEPORT (ENDER PEARLLL)
-    if pacman_x == 0 and pacman_y == 12:    #and direccion == left
+    if pacman_x == 0 and pacman_y == 12:
         print("TP")
         pos_tp = (25, 12)
         pos_previa_tp = (26, 12) #en realidad es la posicion siguiente, pero con respecto al pacman es la que le queda de espaldas
