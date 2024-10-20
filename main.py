@@ -1,4 +1,5 @@
 from pickle import GLOBAL
+from Fantasma import *
 
 import pygame
 from pygame import mixer
@@ -6,6 +7,7 @@ from pygame.examples.testsprite import Static
 
 from Mapa import *
 n=0
+fantasmasLiberados = 0
 # Initialize pygame
 pygame.init()
 
@@ -57,10 +59,70 @@ diccionario_celdas_items = {}        #No se modifica. Para tener presente las ce
 diccionario_celdas_pared = {}        #No se modifica. Para dibujar el mapa
 
 
-def inicializar_mapa(mapa):
+#Supuestamente seria para A*(No tocar)
+def reconstruir_camino(nodo):
+    camino = []
+    while nodo:
+        camino.append(nodo)
+        nodo = nodo.anterior  # Retrocede a la celda anterior
+    return camino[::-1]  # Devuelve el camino en orden desde el inicio al objetivo
 
-    for y, fila in enumerate(mapa): #para no tener que recorrer toda la matriz verificando si hay puntos. Se eliminan conforme va comiendo pacman
+#No tocar(Aunque ahorita no hace nada)
+def a_asterisco(inicio,objetivo):
+    sin_procesar = []
+    procesados = []
+
+    # Agrega el nodo inicial
+    inicio.g = 0
+    inicio.h = inicio.calcular_distancia(objetivo)
+    sin_procesar.append(inicio)
+
+    while sin_procesar:
+        # Ordena la lista abierta por f y selecciona el nodo con menor f
+        sin_procesar.sort(key=lambda celda: celda.calcular_f())
+        actual = sin_procesar.pop(0)  # Toma el nodo con menor f
+
+        # Si hemos llegado al objetivo, podemos reconstruir el camino
+        if actual == objetivo:
+            return reconstruir_camino(actual)
+
+        procesados.append(actual)
+
+        # Para cada vecino
+        for vecino in [actual.arriba, actual.abajo, actual.izquierda, actual.derecha]:
+            if vecino and vecino.valor != 'pared' and vecino not in procesados:
+                # Calcular g para el vecino
+                g_temp = actual.g + 1  # Suponiendo que el costo de moverse a un vecino es 1
+
+                if g_temp < vecino.g:
+                    # Si el nuevo g es mejor, actualiza
+                    vecino.g = g_temp
+                    vecino.h = vecino.calcular_distancia(objetivo)
+                    vecino.anterior = actual  # Guarda la celda anterior
+                    if vecino not in sin_procesar:
+                        sin_procesar.append(vecino)
+
+    return None  # No se encontró camino
+
+
+def inicializar_mapa(mapa):
+    fila_max = len(mapa) - 1
+    col_max = len(mapa[0]) - 1
+
+    for y, fila in enumerate(
+            mapa):  # para no tener que recorrer toda la matriz verificando si hay puntos. Se eliminan conforme va comiendo pacman
         for x, celda in enumerate(fila):
+            celda.id = (y, x)
+            if celda.valor != 'pared':
+                if y != fila_max and mapa[y + 1][x].valor != 'pared':
+                    celda.abajo = mapa[y + 1][x]
+                if y != 0 and mapa[y - 1][x].valor != 'pared':
+                    celda.arriba = mapa[y - 1][x]
+                if x != col_max and mapa[y][x + 1].valor != 'pared':
+                    celda.derecha = mapa[y][x + 1]
+                if x != 0 and mapa[y][x - 1].valor != 'pared':
+                    celda.izquierda = mapa[y][x - 1]
+
             if celda.valor == 'punto':
                 diccionario_celdas_puntos[(x, y)] = 'punto'
                 diccionario_celdas_items[(x, y)] = 'punto'
@@ -68,6 +130,16 @@ def inicializar_mapa(mapa):
                 diccionario_celdas_items[(x, y)] = 'fruta'
             elif celda.valor == 'pared':
                 diccionario_celdas_pared[(x, y)] = 'pared'
+
+    #for y, fila in enumerate(mapa): #para no tener que recorrer toda la matriz verificando si hay puntos. Se eliminan conforme va comiendo pacman
+        #for x, celda in enumerate(fila):
+            #if celda.valor == 'punto':
+                #diccionario_celdas_puntos[(x, y)] = 'punto'
+                #diccionario_celdas_items[(x, y)] = 'punto'
+            #elif celda.valor == 'fruta':
+                #diccionario_celdas_items[(x, y)] = 'fruta'
+            #elif celda.valor == 'pared':
+                #diccionario_celdas_pared[(x, y)] = 'pared'
 
 
 
@@ -155,6 +227,24 @@ def dibujar_pacman(pacman_x, pacman_y, direccion):
     if direccion == 4:
         screen.blit(pacman_Down_img, (pos_x, pos_y))
 
+def dibujar_fantasmas(fantasmas):
+    for fantasma in fantasmas:
+        fantasma.imprimir(screen)
+
+def moverFantasmas(pacman_y, pacman_x,fantasmas):
+    for fantasma in fantasmas:
+        fantasma.decidir_donde_viajar(mapa[pacman_y][pacman_x])
+        #TP
+        if fantasma.celda_actual.id == (12, 0):
+            fantasma.celda_actual = mapa[12][25]
+        if fantasma.celda_actual.id == (12, 26):
+            fantasma.celda_actual=mapa[12][1]
+
+def verificarSiEsComido(pacman_y, pacman_x, fantasmas):
+    for fantasma in fantasmas:
+        if fantasma.celda_actual.id == (pacman_y, pacman_x):
+            print("Comido")
+
 # Reducir olor de todas las celdas conforme camina PACMAN
 def reducir_olor(mapa):
     for (x,y) in diccionario_celdas_items.keys():
@@ -186,6 +276,10 @@ def mover_pacman(mapa, pacman_x, pacman_y, direccion, velocidad):
     return pacman_x, pacman_y
 
 
+def liberarFantasmas(fantasmas,fantasmasLiberados):
+    fantasmas[fantasmasLiberados].celda_actual=mapa[8][13]
+
+
 # Inicializar el mapa con 'punto' en celdas no pared
 inicializar_mapa(mapa)
 
@@ -195,6 +289,12 @@ mixer.music.play()
 screen.fill((255, 255, 255))  # RGB
 screen.blit(background_inicio, (inicio_x, inicio_y))
 pygame.display.flip()
+fantasmas = [
+    Blinky(mapa[10][13]),
+    Pinky(mapa[10][13]),
+    Inky(mapa[10][13]),
+    Clyde(mapa[10][13])
+]
 pygame.time.wait(4000)
 # Game loop
 running = True
@@ -217,9 +317,18 @@ while running:
 
     # Mover al PACMAN y actualizar el mapa
     pacman_x, pacman_y = mover_pacman(mapa, pacman_x, pacman_y, direccion, velocidad)
+    if fantasmasLiberados < 4 and n % 30 == 0 and n != 0:
+        liberarFantasmas(fantasmas,fantasmasLiberados)
+        fantasmasLiberados += 1
+
+    #Por el momento puse 2 verificaciones, despues se cambia si quieren
+    verificarSiEsComido(pacman_y,pacman_x, fantasmas)
+    moverFantasmas(pacman_y, pacman_x, fantasmas)
+    verificarSiEsComido(pacman_y, pacman_x, fantasmas)
 
     # Incrementar el olor de la celda actual de Pac-Man
     mapa[pacman_y][pacman_x].incrementar_olor()
+
 
     # Reducir el olor de todas las celdas en cada iteración
     reducir_olor(mapa)
@@ -258,6 +367,7 @@ while running:
     # Dibujar el mapa y a PACMAN
     dibujar_mapa(mapa)
     dibujar_pacman(pacman_x, pacman_y, direccion)
+    dibujar_fantasmas(fantasmas)
     n+=1    #cantidad de iteraciones
     print(mapa[pacman_y][pacman_x].id, mapa[pacman_y-1][pacman_x-1].olor, mapa[pacman_y][pacman_x].olor, n, pacman_x, pacman_y)
 #creo que mapa[pacman_y-1][pacman_x-1].olor, es un poco ilogico porque al ser y-1 x-1, estaria en diagonal de Pacman
