@@ -40,7 +40,7 @@ class Celda:
         for vecino in [self.arriba, self.abajo, self.izquierda, self.derecha]:
             if vecino and vecino is not anterior and vecino.valor != 'pared':
                 distancia_actual = vecino.calcular_distancia(objetivo)
-                if distancia_actual < menor_distancia:
+                if distancia_actual <= menor_distancia:
                     menor_Celda = vecino
                     menor_distancia = distancia_actual
 
