@@ -1,6 +1,6 @@
 class Celda:
     def __init__(self,x, valor):
-        self.id = id           # Identificador de columna de la celda (para no perderme al hacer el mapa)
+        self.id = id           # X,Y
         self.valor = valor     # Tipo de celda ('pared', 'punto', 'fruta', 'vacio', etc.)
         self.olor = 0          # Valor del "olor" a Pac-Man
         self.izquierda = None

@@ -45,8 +45,8 @@ pacman_Up_img = pygame.image.load('PNGs/pacmanUp.png')          #3
 pacman_Down_img = pygame.image.load('PNGs/pacmanDown.png')      #4
 
 # Posicion inicial de Pac-Man en el mapa (coordenadas de la celda)
-pacman_x = 1  # Columna de la matriz
-pacman_y = 1  # Fila de la matriz
+pacman_x = 14  # Columna de la matriz
+pacman_y = 13  # Fila de la matriz
 # Velocidad de movimiento (en celdas)
 velocidad = 1
 # Dirección: 1Left 2Right 3Up 4Down
@@ -240,10 +240,14 @@ def moverFantasmas(pacman_y, pacman_x,fantasmas):
         if fantasma.celda_actual.id == (12, 26):
             fantasma.celda_actual=mapa[12][1]
 
-def verificarSiEsComido(pacman_y, pacman_x, fantasmas):
+def is_comido(p_y, p_x, fantasmas):
     for fantasma in fantasmas:
-        if fantasma.celda_actual.id == (pacman_y, pacman_x):
+        if fantasma.celda_actual.id == (p_y, p_x):
             print("Comido")
+            return True
+    return False
+
+
 
 # Reducir olor de todas las celdas conforme camina PACMAN
 def reducir_olor(mapa):
@@ -322,9 +326,13 @@ while running:
         fantasmasLiberados += 1
 
     #Por el momento puse 2 verificaciones, despues se cambia si quieren
-    verificarSiEsComido(pacman_y,pacman_x, fantasmas)
+    if is_comido(pacman_y, pacman_x, fantasmas):
+        pacman_x, pacman_y = mover_pacman(mapa, 14, 13, direccion, velocidad)
+
     moverFantasmas(pacman_y, pacman_x, fantasmas)
-    verificarSiEsComido(pacman_y, pacman_x, fantasmas)
+
+    if is_comido(pacman_y, pacman_x, fantasmas):
+        pacman_x, pacman_y = mover_pacman(mapa, 14, 13, direccion, velocidad)
 
     # Incrementar el olor de la celda actual de Pac-Man
     mapa[pacman_y][pacman_x].incrementar_olor()
