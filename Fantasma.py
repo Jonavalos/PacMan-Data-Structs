@@ -6,7 +6,7 @@ import pygame
 
 class Fantasma: #Blinky
     def __init__(self,actual):
-        self.modo = None
+        self.modo = None        #Aqui iria si va a ir a atacar o huir
         self.celda_actual = actual
         self.celda_anterior = None
         self.imagen=[None,None]
