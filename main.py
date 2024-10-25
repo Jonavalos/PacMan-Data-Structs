@@ -283,6 +283,12 @@ def mover_pacman(mapa, pacman_x, pacman_y, direccion, velocidad):
 def liberarFantasmas(fantasmas,fantasmasLiberados):
     fantasmas[fantasmasLiberados].celda_actual=mapa[8][13]
 
+def reiniciarFantasmas(fantasmas):
+    for fantasma in fantasmas:
+        fantasma.celda_actual = mapa[10][13]
+        fantasma.liberado = False
+    return 0
+
 
 # Inicializar el mapa con 'punto' en celdas no pared
 inicializar_mapa(mapa)
@@ -325,17 +331,20 @@ while running:
         liberarFantasmas(fantasmas,fantasmasLiberados)
         fantasmasLiberados += 1
 
-    #Por el momento puse 2 verificaciones, despues se cambia si quieren
+    #-----------------VARIFICAR SI SE COMIERON AL PACMAN----------------
     if is_comido(pacman_y, pacman_x, fantasmas):
         pacman_x, pacman_y = mover_pacman(mapa, 14, 13, direccion, velocidad)
+        reiniciarFantasmas(fantasmas)
 
     moverFantasmas(pacman_y, pacman_x, fantasmas)
-
     if is_comido(pacman_y, pacman_x, fantasmas):
         pacman_x, pacman_y = mover_pacman(mapa, 14, 13, direccion, velocidad)
+        fantasmasLiberados=reiniciarFantasmas(fantasmas)
 
     # Incrementar el olor de la celda actual de Pac-Man
     mapa[pacman_y][pacman_x].incrementar_olor()
+
+
 
 
     # Reducir el olor de todas las celdas en cada iteración
