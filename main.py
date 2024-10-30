@@ -294,6 +294,16 @@ def mover_pacman(mapa, pacman_x, pacman_y, direccion, velocidad):
     return pacman_x, pacman_y
 
 
+
+
+
+fantasmas = [
+        Blinky(mapa[10][13]),
+        Pinky(mapa[10][13]),
+        Inky(mapa[10][13]),
+        Clyde(mapa[10][13])
+    ]
+
 def liberarFantasmas(fantasmas,fantasmasLiberados):
     fantasmas[fantasmasLiberados].celda_actual=mapa[8][13]
 
@@ -304,22 +314,22 @@ def reiniciarFantasmas(fantasmas):
     return 0
 
 
-# Inicializar el mapa con 'punto' en celdas no pared
+def inicializar_juego():
+    inicializar_mapa(mapa)
+    mixer.music.load('musica/pacman_beginning.wav')
+    mixer.music.play()
+    screen.fill((255, 255, 255))  # RGB
+    screen.blit(background_inicio, (inicio_x, inicio_y))
+    pygame.display.flip()
+    pygame.time.wait(4000)
+
+
+
+
+
 inicializar_mapa(mapa)
+inicializar_juego()
 
-
-mixer.music.load('musica/pacman_beginning.wav')
-mixer.music.play()
-screen.fill((255, 255, 255))  # RGB
-screen.blit(background_inicio, (inicio_x, inicio_y))
-pygame.display.flip()
-fantasmas = [
-    Blinky(mapa[10][13]),
-    Pinky(mapa[10][13]),
-    Inky(mapa[10][13]),
-    Clyde(mapa[10][13])
-]
-pygame.time.wait(4000)
 # **********************************Game loop*******************************
 running = True
 while running:
@@ -338,6 +348,10 @@ while running:
                 direccion = 3
             if event.key == pygame.K_DOWN:
                 direccion = 4
+            if event.key == pygame.K_r:
+                a = 1 #reiniciar con r (restart)
+            if event.key == pygame.K_s:
+                a = 1 #guardar con s (save)
 
     # Mover al PACMAN y actualizar el mapa
     pacman_x, pacman_y = mover_pacman(mapa, pacman_x, pacman_y, direccion, velocidad)
