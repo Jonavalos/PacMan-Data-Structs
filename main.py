@@ -19,6 +19,11 @@ background = pygame.image.load('PNGs/background.png')
 background_inicio = pygame.image.load('PNGs/background_inicio.png')
 background_wwcd = pygame.image.load('PNGs/wwcd2.png')
 
+#vida y muerte
+vidas = 3
+fuente_vidas = pygame.font.Font(None, 36) #no se usa, es solo para representar vidas como texto
+corazon_img = pygame.image.load('PNGs/corazon.png')
+gameOver_img = pygame.image.load('PNGs/gameOver2.png')
 
 # Obtener las dimensiones de las imagenes para centrarlas
 
@@ -164,18 +169,18 @@ def dibujar_mapa(mapa):
     for (x, y) in diccionario_celdas_items.keys(): #Dibujar rastro de olor (quitar en version final)
         mapa[y][x].decrementar_olor()
 
-        # Cambiar color basado en el valor del olor
-        if mapa[y][x].valor == 'pared':
-            color = (23, 56, 110)  # Azul para pared
-        else:
-            color = (0, 0, 0)
-            if mapa[y][x].olor >= 1:
-                color = (214, 90, 104)
-            if 10 < mapa[y][x].olor < 20:
-                color = (255, 46, 70)
-            if mapa[y][x].olor >= 20:
-                color = (255, 0, 0)
-        pygame.draw.rect(screen, color, pygame.Rect(x * ANCHO_CELDA, y * ALTO_CELDA, ANCHO_CELDA, ALTO_CELDA))
+        # # Cambiar color basado en el valor del olor
+        # if mapa[y][x].valor == 'pared':
+        #     color = (23, 56, 110)  # Azul para pared
+        # else:
+        #     color = (0, 0, 0)
+        #     if mapa[y][x].olor >= 1:
+        #         color = (214, 90, 104)
+        #     if 10 < mapa[y][x].olor < 20:
+        #         color = (255, 46, 70)
+        #     if mapa[y][x].olor >= 20:
+        #         color = (255, 0, 0)
+        # pygame.draw.rect(screen, color, pygame.Rect(x * ANCHO_CELDA, y * ALTO_CELDA, ANCHO_CELDA, ALTO_CELDA))
 
 
         # Comprobar si la celda es 'vacio' y no dibujar nada
@@ -187,14 +192,6 @@ def dibujar_mapa(mapa):
             color = (23, 56, 110)  # Azul para pared
             pygame.draw.rect(screen, color, pygame.Rect(x * ANCHO_CELDA, y * ALTO_CELDA, ANCHO_CELDA, ALTO_CELDA))
         else:
-            color = (0, 0, 0)
-            if mapa[y][x].olor >= 1:
-                color = (214, 90, 104)
-            if 10 < mapa[y][x].olor < 20:
-                color = (255, 46, 70)
-            if mapa[y][x].olor >= 20:
-                color = (255, 0, 0)
-            pygame.draw.rect(screen, color, pygame.Rect(x * ANCHO_CELDA, y * ALTO_CELDA, ANCHO_CELDA, ALTO_CELDA))
 
             # Dibujar el punto si corresponde
             if mapa[y][x].valor == 'punto':
@@ -240,6 +237,9 @@ def moverFantasmas(pacman_y, pacman_x,fantasmas):
         if fantasma.celda_actual.id == (12, 26):
             fantasma.celda_actual=mapa[12][1]
 
+
+#--------cosas de muerte---------
+
 def is_comido(p_y, p_x, fantasmas):
     for fantasma in fantasmas:
         if fantasma.celda_actual.id == (p_y, p_x):
@@ -247,7 +247,21 @@ def is_comido(p_y, p_x, fantasmas):
             return True
     return False
 
+def dibujar_vidas(vid):
+    for i in range(vid):
+        screen.blit(corazon_img, (5 + i * 45, 5)) #para separar los corazones
 
+def game_over():
+    screen.fill((255, 255, 255))  # RGB
+    screen.blit(gameOver_img, (wwcd_x, wwcd_y))
+    pygame.display.flip()
+    pygame.time.wait(2000)
+
+def victoria():
+    screen.fill((255, 255, 255))  # RGB
+    screen.blit(background_wwcd, (inicio_x, inicio_y))
+    pygame.display.flip()
+    pygame.time.wait(2000)
 
 # Reducir olor de todas las celdas conforme camina PACMAN
 def reducir_olor(mapa):
@@ -306,7 +320,7 @@ fantasmas = [
     Clyde(mapa[10][13])
 ]
 pygame.time.wait(4000)
-# Game loop
+# **********************************Game loop*******************************
 running = True
 while running:
     screen.fill((0, 124, 140))  # RGB
@@ -335,17 +349,21 @@ while running:
     if is_comido(pacman_y, pacman_x, fantasmas):
         pacman_x, pacman_y = mover_pacman(mapa, 14, 13, direccion, velocidad)
         reiniciarFantasmas(fantasmas)
+        vidas -= 1
+        if vidas <= 0:
+            running = False
 
     moverFantasmas(pacman_y, pacman_x, fantasmas)
     if is_comido(pacman_y, pacman_x, fantasmas):
         pacman_x, pacman_y = mover_pacman(mapa, 14, 13, direccion, velocidad)
         fantasmasLiberados=reiniciarFantasmas(fantasmas)
+        vidas -= 1
+        if vidas <= 0:
+            running = False
+
 
     # Incrementar el olor de la celda actual de Pac-Man
     mapa[pacman_y][pacman_x].incrementar_olor()
-
-
-
 
     # Reducir el olor de todas las celdas en cada iteración
     reducir_olor(mapa)
@@ -385,16 +403,19 @@ while running:
     dibujar_mapa(mapa)
     dibujar_pacman(pacman_x, pacman_y, direccion)
     dibujar_fantasmas(fantasmas)
+    dibujar_vidas(vidas)
     n+=1    #cantidad de iteraciones
     print(mapa[pacman_y][pacman_x].id, mapa[pacman_y-1][pacman_x-1].olor, mapa[pacman_y][pacman_x].olor, n, pacman_x, pacman_y)
-#creo que mapa[pacman_y-1][pacman_x-1].olor, es un poco ilogico porque al ser y-1 x-1, estaria en diagonal de Pacman
+    #creo que mapa[pacman_y-1][pacman_x-1].olor, es un poco ilogico porque al ser y-1 x-1, estaria en diagonal de Pacman
     if is_victoria(mapa):
-        screen.fill((255, 255, 255))  # RGB
-        screen.blit(background_wwcd, (inicio_x, inicio_y))
-        pygame.display.flip()
-        pygame.time.wait(2000)
+        victoria()
         running = False
 
+    if vidas==0:
+        game_over()
+
+    #texto_vidas = fuente_vidas.render(f'Vidas: {vidas}', True, (255, 255, 255))
+    #screen.blit(texto_vidas, (10, 10))  # arriba izq
 
     # Actualizar la pantalla
     pygame.display.flip()
