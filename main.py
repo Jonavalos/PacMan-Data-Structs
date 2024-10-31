@@ -49,6 +49,22 @@ pacman_Left_img = pygame.image.load('PNGs/pacmanLeft.png')      #2
 pacman_Up_img = pygame.image.load('PNGs/pacmanUp.png')          #3
 pacman_Down_img = pygame.image.load('PNGs/pacmanDown.png')      #4
 
+#cargar imagen Blinky (rojo)
+blinky_left = pygame.image.load('PNGs/BlinkyLeft.png')
+blinky_right = pygame.image.load('PNGs/BlinkyRight.png')
+
+#cargar imagen Pinky (rosa)
+pinky_left = pygame.image.load('PNGs/PinkyLeft.png')
+pinky_right = pygame.image.load('PNGs/PinkyRight.png')
+
+#cargar imagen Inky (cyan)
+inky_left = pygame.image.load('PNGs/InkyLeft.png')
+inky_right = pygame.image.load('PNGs/InkyRight.png')
+
+#cargar imagen Clyde (naranja)
+clyde_left = pygame.image.load('PNGs/ClydeLeft.png')
+clyde_right = pygame.image.load('PNGs/ClydeRight.png')
+
 # Posicion inicial de Pac-Man en el mapa (coordenadas de la celda)
 pacman_x = 14  # Columna de la matriz
 pacman_y = 13  # Fila de la matriz
@@ -133,6 +149,8 @@ def inicializar_mapa(mapa):
                 diccionario_celdas_items[(x, y)] = 'punto'
             elif celda.valor == 'fruta':
                 diccionario_celdas_items[(x, y)] = 'fruta'
+            elif celda.valor == 'pildora':
+                diccionario_celdas_items[(x, y)] = 'pildora'
             elif celda.valor == 'pared':
                 diccionario_celdas_pared[(x, y)] = 'pared'
 
@@ -196,12 +214,22 @@ def dibujar_mapa(mapa):
             # Dibujar el punto si corresponde
             if mapa[y][x].valor == 'punto':
                 punto_color = (255, 255, 255)  # Blanco para el punto
-                punto_size = ANCHO_CELDA // 4  # Tamaño del punto  (pedir opinion del tamaño)
+                punto_size = ANCHO_CELDA // 4  # Tamaño del punto (pedir opinion del tamaño)
                 # Calcular la posicion centrada del cuadrito dentro de la celda
                 punto_x = (x * ANCHO_CELDA) + (ANCHO_CELDA // 2) - (punto_size // 2)
                 punto_y = (y * ALTO_CELDA) + (ALTO_CELDA // 2) - (punto_size // 2)
                 # Dibujar el cuadrito blanco
                 pygame.draw.rect(screen, punto_color, pygame.Rect(punto_x, punto_y, punto_size, punto_size))
+            if mapa[y][x].valor == 'pildora':
+                punto_color = (150, 173, 255)  # morado claro para el punto
+                punto_radio = ANCHO_CELDA // 6  # radio del punto (pedir opinion del tamaño)
+
+                # Calcular la posicion centrada del punto dentro de la celda
+                punto_x = (x * ANCHO_CELDA) + (ANCHO_CELDA // 2)  # Centro en X
+                punto_y = (y * ALTO_CELDA) + (ALTO_CELDA // 2)  # Centro en Y
+
+                # Dibujar el círculo
+                pygame.draw.circle(screen, punto_color, (punto_x, punto_y), punto_radio)
 
 
 def is_victoria(mapa): #Verifica si ya no quedan puntos (si ya ganó). Se va a optimizar mas adelante, por ahora dejar asi.
@@ -323,7 +351,10 @@ def inicializar_juego():
     pygame.display.flip()
     pygame.time.wait(4000)
 
-
+def toggle_asustar_fantasmas():
+    for fantasma in fantasmas:
+        fantasma.modo = 'frightened'
+    return 0
 
 
 
