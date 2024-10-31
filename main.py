@@ -151,6 +151,7 @@ def inicializar_mapa(mapa):
                 diccionario_celdas_items[(x, y)] = 'fruta'
             elif celda.valor == 'pildora':
                 diccionario_celdas_items[(x, y)] = 'pildora'
+                diccionario_celdas_puntos[(x, y)] = 'pildora'
             elif celda.valor == 'pared':
                 diccionario_celdas_pared[(x, y)] = 'pared'
 
@@ -311,6 +312,11 @@ def mover_pacman(mapa, pacman_x, pacman_y, direccion, velocidad):
     # Cuando pasa PACMAN, actualiza valor, eliminca del diccionario y hace sonido de CHOMP (suena horrible pero es lo que hay)
     pos_actual = (pacman_x, pacman_y)
     if pos_actual in diccionario_celdas_puntos:
+
+        if pos_actual in diccionario_celdas_items and mapa[pacman_y][pacman_x].valor == 'pildora':
+            del diccionario_celdas_items[pos_actual]  # elimina pildoras del diccionario de items
+            mapa[pacman_y][pacman_x].valor = 'vacio'
+
         mapa[pacman_y][pacman_x].valor = 'vacio'
         del diccionario_celdas_puntos[pos_actual]  # elimina solo del diccionario de puntos
         # sonido de chomp
@@ -356,6 +362,19 @@ def toggle_asustar_fantasmas():
         fantasma.modo = 'frightened'
     return 0
 
+def is_colision(p_y, p_x, fantasmas):
+    for fantasma in fantasmas:
+        if fantasma.celda_actual.id == (p_y, p_x) and fantasma.modo!='frightened': #se lo comen
+            reiniciarFantasmas(fantasmas)
+            print("se lo comieron")
+            return 0
+        if fantasma.celda_actual.id == (p_y, p_x) and fantasma.modo == 'frightened': #se los come
+            fantasma.celda_actual = mapa[10][13]
+            fantasma.liberado = False
+            fantasma.modo = 'chase'  # CAMBIAR A scattered
+            print("se lo comio")
+            return 1
+    return 3
 
 
 inicializar_mapa(mapa)
