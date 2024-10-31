@@ -271,7 +271,7 @@ def moverFantasmas(pacman_y, pacman_x,fantasmas):
 
 def is_comido(p_y, p_x, fantasmas):
     for fantasma in fantasmas:
-        if fantasma.celda_actual.id == (p_y, p_x):
+        if fantasma.celda_actual.id == (p_y, p_x) and fantasma.modo != 'frightened':
             print("Comido")
             return True
     return False
@@ -316,6 +316,7 @@ def mover_pacman(mapa, pacman_x, pacman_y, direccion, velocidad):
         if pos_actual in diccionario_celdas_items and mapa[pacman_y][pacman_x].valor == 'pildora':
             del diccionario_celdas_items[pos_actual]  # elimina pildoras del diccionario de items
             mapa[pacman_y][pacman_x].valor = 'vacio'
+            asustar_fantasmas()
 
         mapa[pacman_y][pacman_x].valor = 'vacio'
         del diccionario_celdas_puntos[pos_actual]  # elimina solo del diccionario de puntos
@@ -357,7 +358,7 @@ def inicializar_juego():
     pygame.display.flip()
     pygame.time.wait(4000)
 
-def toggle_asustar_fantasmas():
+def asustar_fantasmas():
     for fantasma in fantasmas:
         fantasma.modo = 'frightened'
     return 0
@@ -365,7 +366,7 @@ def toggle_asustar_fantasmas():
 def is_colision(p_y, p_x, fantasmas):
     for fantasma in fantasmas:
         if fantasma.celda_actual.id == (p_y, p_x) and fantasma.modo!='frightened': #se lo comen
-            reiniciarFantasmas(fantasmas)
+            #reiniciarFantasmas(fantasmas)
             print("se lo comieron")
             return 0
         if fantasma.celda_actual.id == (p_y, p_x) and fantasma.modo == 'frightened': #se los come
@@ -416,6 +417,8 @@ while running:
         vidas -= 1
         if vidas <= 0:
             running = False
+    else:
+        is_colision(pacman_y, pacman_x, fantasmas)
 
     moverFantasmas(pacman_y, pacman_x, fantasmas)
     if is_comido(pacman_y, pacman_x, fantasmas):
@@ -424,6 +427,9 @@ while running:
         vidas -= 1
         if vidas <= 0:
             running = False
+    else:
+        is_colision(pacman_y, pacman_x, fantasmas)
+
 
 
     # Incrementar el olor de la celda actual de Pac-Man
