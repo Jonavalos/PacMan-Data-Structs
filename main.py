@@ -335,7 +335,7 @@ fantasmas = [
         Blinky(mapa[10][13]),
         Pinky(mapa[10][13]),
         Inky(mapa[10][13]),
-        Clyde(mapa[10][13])
+        Clyde(mapa[10][13],mapa[24][1])
     ]
 
 def liberarFantasmas(fantasmas,fantasmasLiberados):

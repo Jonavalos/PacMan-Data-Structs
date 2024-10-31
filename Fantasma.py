@@ -4,13 +4,14 @@ from Celda import *
 from Mapa import *
 import pygame
 
-class Fantasma: #Blinky
+class Fantasma:
     def __init__(self,actual):
         self.modo = 'chase'        #scatter (van primero a las esquinas), chase (modo diablo), frightened (asustados)
         self.celda_actual = actual      #deberia ir primero scatter, y luego se activa el chase. Cambiar luego
         self.celda_anterior = None
         self.imagen=[None,None,None]
         self.imagen_Actual = None
+
 
     def decidir_donde_viajar(self,destino):
         #nueva_celda = self.celda_actual.retornar_vecino_con_menor_distancia(destino, self.celda_anterior)
@@ -87,17 +88,30 @@ class Inky(Fantasma):   #(Cian): Utiliza tanto la posición de Pacman como la de
 
 
 class Clyde(Fantasma):  # (Naranja): Se comporta de manera errática, a veces persiguiendo aPacman y otras veces alejándose
-    def __init__(self,actual):
+    def __init__(self,actual,esquina):
         super().__init__(actual)
         self.imagen[0] = pygame.image.load('PNGs/ClydeLeft.png')  # Izquierda
         self.imagen[1] = pygame.image.load('PNGs/ClydeRight.png')  # Derecha
         self.imagen[2] = pygame.image.load('PNGs/scaredGhost.png')  # Asustado
         self.imagen_Actual = self.imagen[0]
+        self.modo = 'scatter'
+        self.esquina = esquina
 
     def decidir_donde_viajar(self,destino):
-        nueva_celda = self.celda_actual.retornar_vecino_con_menor_distancia(destino, self.celda_anterior)
-        self.celda_anterior = self.celda_actual
-        self.celda_actual = nueva_celda
+
+        if self.modo =='scatter':
+            nueva_celda = self.celda_actual.retornar_vecino_con_menor_distancia(self.esquina, self.celda_anterior)
+            self.celda_anterior = self.celda_actual
+            self.celda_actual = nueva_celda
+            if self.celda_actual.id[0] == self.esquina.id[0] & self.celda_actual.id[1] == self.esquina.id[1]:
+                self.modo = 'chase'
+        if destino.calcular_distancia(destino) > 8 or self.modo == 'chase':
+            self.modo = 'chase'
+            nueva_celda = self.celda_actual.retornar_vecino_con_menor_distancia(destino, self.celda_anterior)
+            self.celda_anterior = self.celda_actual
+            self.celda_actual = nueva_celda
+
+
 
     def imprimir(self,screen):
         super().imprimir(screen)
