@@ -130,6 +130,8 @@ def inicializar_mapa(mapa):
                 diccionario_celdas_items[(x, y)] = 'fruta'
             elif celda.valor == 'pared':
                 diccionario_celdas_pared[(x, y)] = 'pared'
+            elif celda.valor == 'pildora':
+                diccionario_celdas_pared[(x, y)] = 'pildora'
 
     #for y, fila in enumerate(mapa): #para no tener que recorrer toda la matriz verificando si hay puntos. Se eliminan conforme va comiendo pacman
         #for x, celda in enumerate(fila):
@@ -160,6 +162,16 @@ def dibujar_mapa(mapa):
                 color = (255, 0, 0)
         pygame.draw.rect(screen, color, pygame.Rect(x * ANCHO_CELDA, y * ALTO_CELDA, ANCHO_CELDA, ALTO_CELDA))
 
+        if mapa[y][x].valor == 'pildora':
+            punto_color = (150, 173, 255)  # morado claro para el punto
+            punto_radio = ANCHO_CELDA // 3  # radio del punto (pedir opinion del tamaño)
+
+            # Calcular la posicion centrada del punto dentro de la celda
+            punto_x = (x * ANCHO_CELDA) + (ANCHO_CELDA // 2)  # Centro en X
+            punto_y = (y * ALTO_CELDA) + (ALTO_CELDA // 2)  # Centro en Y
+
+            # Dibujar el círculo
+            pygame.draw.circle(screen, punto_color, (punto_x, punto_y), punto_radio)
 
     for (x, y) in diccionario_celdas_items.keys(): #Dibujar rastro de olor (quitar en version final)
         mapa[y][x].decrementar_olor()
@@ -167,16 +179,6 @@ def dibujar_mapa(mapa):
         # Cambiar color basado en el valor del olor
         if mapa[y][x].valor == 'pared':
             color = (23, 56, 110)  # Azul para pared
-        else:
-            color = (0, 0, 0)
-            if mapa[y][x].olor >= 1:
-                color = (214, 90, 104)
-            if 10 < mapa[y][x].olor < 20:
-                color = (255, 46, 70)
-            if mapa[y][x].olor >= 20:
-                color = (255, 0, 0)
-        pygame.draw.rect(screen, color, pygame.Rect(x * ANCHO_CELDA, y * ALTO_CELDA, ANCHO_CELDA, ALTO_CELDA))
-
 
         # Comprobar si la celda es 'vacio' y no dibujar nada
         if mapa[y][x].valor == 'vacio':
@@ -187,14 +189,6 @@ def dibujar_mapa(mapa):
             color = (23, 56, 110)  # Azul para pared
             pygame.draw.rect(screen, color, pygame.Rect(x * ANCHO_CELDA, y * ALTO_CELDA, ANCHO_CELDA, ALTO_CELDA))
         else:
-            color = (0, 0, 0)
-            if mapa[y][x].olor >= 1:
-                color = (214, 90, 104)
-            if 10 < mapa[y][x].olor < 20:
-                color = (255, 46, 70)
-            if mapa[y][x].olor >= 20:
-                color = (255, 0, 0)
-            pygame.draw.rect(screen, color, pygame.Rect(x * ANCHO_CELDA, y * ALTO_CELDA, ANCHO_CELDA, ALTO_CELDA))
 
             # Dibujar el punto si corresponde
             if mapa[y][x].valor == 'punto':

@@ -6,10 +6,10 @@ import pygame
 
 class Fantasma: #Blinky
     def __init__(self,actual):
-        self.modo = None        #Aqui iria si va a ir a atacar o huir
+        self.modo = None        #chase, scatter, frightened
         self.celda_actual = actual
         self.celda_anterior = None
-        self.imagen=[None,None]
+        self.imagen=[None,None, None]
         self.imagen_Actual = None
 
     def decidir_donde_viajar(self,destino):
@@ -35,6 +35,7 @@ class Blinky(Fantasma):
         super().__init__(actual)
         self.imagen[0]=pygame.image.load('PNGs/BlinkyLeft.png')     #Izquierda
         self.imagen[1]=pygame.image.load('PNGs/BlinkyRight.png')    #Derecha
+        self.imagen[2]=pygame.image.load('PNGs/scaredGhost.png')    #asustado
         self.imagen_Actual = self.imagen[0]
 
 
@@ -52,6 +53,8 @@ class Pinky(Fantasma): #(Rosa): Intenta predecir la dirección de Pacman y corta
         super().__init__(actual)
         self.imagen[0]=pygame.image.load('PNGs/PinkyLeft.png')     #Izquierda
         self.imagen[1]=pygame.image.load('PNGs/PinkyRight.png')    #Derecha
+        self.imagen[2]=pygame.image.load('PNGs/scaredGhost.png')    #asustado
+
         self.imagen_Actual = self.imagen[0]
 
 
@@ -70,6 +73,8 @@ class Inky(Fantasma):   #(Cian): Utiliza tanto la posición de Pacman como la de
         super().__init__(actual)
         self.imagen[0] = pygame.image.load('PNGs/InkyLeft.png')  # Izquierda
         self.imagen[1] = pygame.image.load('PNGs/InkyRight.png')  # Derecha
+        self.imagen[2]=pygame.image.load('PNGs/scaredGhost.png')    #asustado
+
         self.imagen_Actual = self.imagen[0]
 
     def decidir_donde_viajar(self,destino):
@@ -86,6 +91,8 @@ class Clyde(Fantasma):  # (Naranja): Se comporta de manera errática, a veces pe
         super().__init__(actual)
         self.imagen[0] = pygame.image.load('PNGs/ClydeLeft.png')  # Izquierda
         self.imagen[1] = pygame.image.load('PNGs/ClydeRight.png')  # Derecha
+        self.imagen[2]=pygame.image.load('PNGs/scaredGhost.png')    #asustado
+
         self.imagen_Actual = self.imagen[0]
 
     def decidir_donde_viajar(self,destino):
