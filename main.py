@@ -156,17 +156,6 @@ def inicializar_mapa(mapa):
             elif celda.valor == 'pared':
                 diccionario_celdas_pared[(x, y)] = 'pared'
 
-    #for y, fila in enumerate(mapa): #para no tener que recorrer toda la matriz verificando si hay puntos. Se eliminan conforme va comiendo pacman
-        #for x, celda in enumerate(fila):
-            #if celda.valor == 'punto':
-                #diccionario_celdas_puntos[(x, y)] = 'punto'
-                #diccionario_celdas_items[(x, y)] = 'punto'
-            #elif celda.valor == 'fruta':
-                #diccionario_celdas_items[(x, y)] = 'fruta'
-            #elif celda.valor == 'pared':
-                #diccionario_celdas_pared[(x, y)] = 'pared'
-
-
 
 
 # Dibujar el mapa en pantalla
@@ -188,19 +177,6 @@ def dibujar_mapa(mapa):
 
     for (x, y) in diccionario_celdas_items.keys(): #Dibujar rastro de olor (quitar en version final)
         mapa[y][x].decrementar_olor()
-
-        # # Cambiar color basado en el valor del olor
-        # if mapa[y][x].valor == 'pared':
-        #     color = (23, 56, 110)  # Azul para pared
-        # else:
-        #     color = (0, 0, 0)
-        #     if mapa[y][x].olor >= 1:
-        #         color = (214, 90, 104)
-        #     if 10 < mapa[y][x].olor < 20:
-        #         color = (255, 46, 70)
-        #     if mapa[y][x].olor >= 20:
-        #         color = (255, 0, 0)
-        # pygame.draw.rect(screen, color, pygame.Rect(x * ANCHO_CELDA, y * ALTO_CELDA, ANCHO_CELDA, ALTO_CELDA))
 
 
         # Comprobar si la celda es 'vacio' y no dibujar nada
@@ -224,7 +200,7 @@ def dibujar_mapa(mapa):
                 pygame.draw.rect(screen, punto_color, pygame.Rect(punto_x, punto_y, punto_size, punto_size))
             if mapa[y][x].valor == 'pildora':
                 punto_color = (150, 173, 255)  # morado claro para el punto
-                punto_radio = ANCHO_CELDA // 6  # radio del punto (pedir opinion del tamaño)
+                punto_radio = ANCHO_CELDA // 3  # radio del punto (pedir opinion del tamaño)
 
                 # Calcular la posicion centrada del punto dentro de la celda
                 punto_x = (x * ANCHO_CELDA) + (ANCHO_CELDA // 2)  # Centro en X
@@ -332,7 +308,7 @@ def mover_pacman(mapa, pacman_x, pacman_y, direccion, velocidad):
 
 
 
-tiempo = None
+tiempo_liberar = None
 fantasmas = [
         Blinky(mapa[10][13]),
         Pinky(mapa[10][13]),
@@ -362,10 +338,10 @@ def inicializar_juego():
 def asustar_fantasmas():
     for fantasma in fantasmas:
         fantasma.modo = 'frightened'
-    tiempo = time.time()
+
     return 0
 
-def normalizarFantasmas():
+def chase_fantasmas():
     for fantasma in fantasmas:
         fantasma.modo = 'chase'
     return 0
@@ -421,13 +397,14 @@ while running:
     #-----------------VARIFICAR SI SE COMIERON AL PACMAN----------------
     if is_comido(pacman_y, pacman_x, fantasmas):
         pacman_x, pacman_y = mover_pacman(mapa, 14, 13, direccion, velocidad)
-        reiniciarFantasmas(fantasmas)
+        fantasmasLiberados=reiniciarFantasmas(fantasmas)
         vidas -= 1
         if vidas <= 0:
             running = False
     else:
-        if is_colision(pacman_y, pacman_x, fantasmas) == 1:
+        if is_colision(pacman_y, pacman_x, fantasmas) == 1: #se come a alguno
             fantasmasLiberados -= 1
+            tiempo_liberar = time.time()
 
     moverFantasmas(pacman_y, pacman_x, fantasmas)
     if is_comido(pacman_y, pacman_x, fantasmas):
@@ -437,8 +414,9 @@ while running:
         if vidas <= 0:
             running = False
     else:
-        if is_colision(pacman_y, pacman_x, fantasmas)==1:
+        if is_colision(pacman_y, pacman_x, fantasmas)==1: #se come a alguno
             fantasmasLiberados-=1
+            tiempo_liberar = time.time()
 
 
 
@@ -480,12 +458,12 @@ while running:
             del diccionario_celdas_puntos[pos_previa_tp]
 
     # Dibujar el mapa y a PACMAN
-    if tiempo is not None:
-        tiempo_transcurrido = int(time.time() - tiempo)
+    if tiempo_liberar is not None:
+        tiempo_transcurrido = int(time.time() - tiempo_liberar)
         if tiempo_transcurrido >= 10:
-            tiempo = None
+            tiempo_liberar = None
             tiempo_transcurrido = None
-            normalizarFantasmas()
+            chase_fantasmas()
 
 
     dibujar_mapa(mapa)
