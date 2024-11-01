@@ -1,4 +1,5 @@
 from pickle import GLOBAL
+import time
 from Fantasma import *
 
 import pygame
@@ -331,7 +332,7 @@ def mover_pacman(mapa, pacman_x, pacman_y, direccion, velocidad):
 
 
 
-
+tiempo = None
 fantasmas = [
         Blinky(mapa[10][13]),
         Pinky(mapa[10][13]),
@@ -361,7 +362,14 @@ def inicializar_juego():
 def asustar_fantasmas():
     for fantasma in fantasmas:
         fantasma.modo = 'frightened'
+    tiempo = time.time()
     return 0
+
+def normalizarFantasmas():
+    for fantasma in fantasmas:
+        fantasma.modo = 'chase'
+    return 0
+
 
 def is_colision(p_y, p_x, fantasmas):
     for fantasma in fantasmas:
@@ -470,6 +478,14 @@ while running:
             del diccionario_celdas_puntos[pos_previa_tp]
 
     # Dibujar el mapa y a PACMAN
+    if tiempo is not None:
+        tiempo_transcurrido = int(time.time() - tiempo)
+        if tiempo_transcurrido >= 10:
+            tiempo = None
+            tiempo_transcurrido = None
+            normalizarFantasmas()
+
+
     dibujar_mapa(mapa)
     dibujar_pacman(pacman_x, pacman_y, direccion)
     dibujar_fantasmas(fantasmas)
