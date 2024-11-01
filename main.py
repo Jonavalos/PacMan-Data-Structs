@@ -426,7 +426,8 @@ while running:
         if vidas <= 0:
             running = False
     else:
-        is_colision(pacman_y, pacman_x, fantasmas)
+        if is_colision(pacman_y, pacman_x, fantasmas) == 1:
+            fantasmasLiberados -= 1
 
     moverFantasmas(pacman_y, pacman_x, fantasmas)
     if is_comido(pacman_y, pacman_x, fantasmas):
@@ -436,7 +437,8 @@ while running:
         if vidas <= 0:
             running = False
     else:
-        is_colision(pacman_y, pacman_x, fantasmas)
+        if is_colision(pacman_y, pacman_x, fantasmas)==1:
+            fantasmasLiberados-=1
 
 
 
