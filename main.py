@@ -22,9 +22,12 @@ background_wwcd = pygame.image.load('PNGs/wwcd2.png')
 
 #vida y muerte
 vidas = 3
-fuente_vidas = pygame.font.Font(None, 36) #no se usa, es solo para representar vidas como texto
+fuente_vidas_puntos = pygame.font.Font(None, 30) #representa puntos o vida como texto
 corazon_img = pygame.image.load('PNGs/corazon.png')
 gameOver_img = pygame.image.load('PNGs/gameOver2.png')
+
+#puntos
+puntos=0
 
 # Obtener las dimensiones de las imagenes para centrarlas
 
@@ -274,6 +277,9 @@ def reducir_olor(mapa):
     for (x,y) in diccionario_celdas_items.keys():
         mapa[y][x].decrementar_olor()
 
+def aumentar_puntos():
+    global puntos
+    puntos+=1
 
 # Mover a PACMAN y actualizar el valor de la celda
 def mover_pacman(mapa, pacman_x, pacman_y, direccion, velocidad):
@@ -296,6 +302,7 @@ def mover_pacman(mapa, pacman_x, pacman_y, direccion, velocidad):
             asustar_fantasmas()
 
         mapa[pacman_y][pacman_x].valor = 'vacio'
+        aumentar_puntos()
         del diccionario_celdas_puntos[pos_actual]  # elimina solo del diccionario de puntos
         # sonido de chomp
         mixer.music.load('musica/pacman_chomp2.wav')
@@ -429,6 +436,7 @@ while running:
     pos_actual = (pacman_x, pacman_y)
     if pos_actual in diccionario_celdas_puntos:
         mapa[pacman_y][pacman_x].valor = 'vacio'
+        puntos += 1
         del diccionario_celdas_puntos[pos_actual]  # elimina solo del diccionario de puntos
 
 
@@ -442,6 +450,7 @@ while running:
             # xy-> 25,12 y 26,12 vacio en tp
             mapa[pacman_y][pacman_x].valor = 'vacio'
             mapa[pacman_y][pacman_x+1].valor = 'vacio'
+            puntos += 2
             del diccionario_celdas_puntos[pos_tp]
             del diccionario_celdas_puntos[pos_previa_tp]
     if pacman_x == 26 and pacman_y == 12:
@@ -454,6 +463,7 @@ while running:
             # xy-> 1,12 y 0,12 vacio en tp
             mapa[pacman_y][pacman_x].valor = 'vacio'
             mapa[pacman_y][pacman_x-1].valor = 'vacio'
+            puntos += 2
             del diccionario_celdas_puntos[pos_tp]
             del diccionario_celdas_puntos[pos_previa_tp]
 
@@ -480,8 +490,9 @@ while running:
     if vidas==0:
         game_over()
 
-    #texto_vidas = fuente_vidas.render(f'Vidas: {vidas}', True, (255, 255, 255))
-    #screen.blit(texto_vidas, (10, 10))  # arriba izq
+    #texto_vidas = fuente_vidas_puntos.render(f'Vidas: {vidas}', True, (255, 255, 255))
+    texto_puntos = fuente_vidas_puntos.render(f'Puntos: {puntos}', True, (255, 255, 255))
+    screen.blit(texto_puntos, (660, 8))  # arriba izq
 
     # Actualizar la pantalla
     pygame.display.flip()
