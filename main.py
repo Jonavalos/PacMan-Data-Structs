@@ -20,7 +20,7 @@ background = pygame.image.load('PNGs/background.png')
 background_inicio = pygame.image.load('PNGs/background_inicio.png')
 background_wwcd = pygame.image.load('PNGs/wwcd2.png')
 
-#vida y muerte
+#vida, puntos y muerte
 vidas = 3
 fuente_vidas_puntos = pygame.font.Font(None, 30) #representa puntos o vida como texto
 corazon_img = pygame.image.load('PNGs/corazon.png')
@@ -28,6 +28,9 @@ gameOver_img = pygame.image.load('PNGs/gameOver2.png')
 
 #puntos
 puntos=0
+
+#juego pausado (con barra espaciadora)
+is_paused = False
 
 # Obtener las dimensiones de las imagenes para centrarlas
 
@@ -378,6 +381,8 @@ while running:
     screen.fill((0, 124, 140))  # RGB
     screen.blit(background, (0, 0))  # Background
 
+
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
@@ -394,86 +399,76 @@ while running:
                 a = 1 #reiniciar con r (restart)
             if event.key == pygame.K_s:
                 a = 1 #guardar con s (save)
+            if event.key == pygame.K_SPACE:
+                is_paused = not is_paused  #  toggle is_paused con espacio
 
-    # Mover al PACMAN y actualizar el mapa
-    pacman_x, pacman_y = mover_pacman(mapa, pacman_x, pacman_y, direccion, velocidad)
-    if fantasmasLiberados < 4 and n % 30 == 0 and n != 0:
-        liberarFantasmas(fantasmas,fantasmasLiberados)
-        fantasmasLiberados += 1
+    if not is_paused: #la logica del juego no se ejecuta mientras este en pausa, solo la parte grafica. entonces parece que esta pausado
 
-    #-----------------VARIFICAR SI SE COMIERON AL PACMAN----------------
-    if is_comido(pacman_y, pacman_x, fantasmas):
-        pacman_x, pacman_y = mover_pacman(mapa, 14, 13, direccion, velocidad)
-        fantasmasLiberados=reiniciarFantasmas(fantasmas)
-        vidas -= 1
-        if vidas <= 0:
-            running = False
-    else:
-        if is_colision(pacman_y, pacman_x, fantasmas) == 1: #se come a alguno
-            fantasmasLiberados -= 1
-            tiempo_liberar = time.time()
+        # Mover al PACMAN y actualizar el mapa
+        pacman_x, pacman_y = mover_pacman(mapa, pacman_x, pacman_y, direccion, velocidad)
+        if fantasmasLiberados < 4 and n % 30 == 0 and n != 0:
+            liberarFantasmas(fantasmas,fantasmasLiberados)
+            fantasmasLiberados += 1
 
-    moverFantasmas(pacman_y, pacman_x, fantasmas)
-    if is_comido(pacman_y, pacman_x, fantasmas):
-        pacman_x, pacman_y = mover_pacman(mapa, 14, 13, direccion, velocidad)
-        fantasmasLiberados=reiniciarFantasmas(fantasmas)
-        vidas -= 1
-        if vidas <= 0:
-            running = False
-    else:
-        if is_colision(pacman_y, pacman_x, fantasmas)==1: #se come a alguno
-            fantasmasLiberados-=1
-            tiempo_liberar = time.time()
+        #-----------------VARIFICAR SI SE COMIERON AL PACMAN----------------
+        if is_comido(pacman_y, pacman_x, fantasmas):
+            pacman_x, pacman_y = mover_pacman(mapa, 14, 13, direccion, velocidad)
+            fantasmasLiberados=reiniciarFantasmas(fantasmas)
+            vidas -= 1
+            if vidas <= 0:
+                running = False
+        else:
+            if is_colision(pacman_y, pacman_x, fantasmas) == 1: #se come a alguno
+                fantasmasLiberados -= 1
+                tiempo_liberar = time.time()
 
-
-
-    # Incrementar el olor de la celda actual de Pac-Man
-    mapa[pacman_y][pacman_x].incrementar_olor()
-
-    # Reducir el olor de todas las celdas en cada iteración
-    reducir_olor(mapa)
-
-    pos_actual = (pacman_x, pacman_y)
-    if pos_actual in diccionario_celdas_puntos:
-        mapa[pacman_y][pacman_x].valor = 'vacio'
-        puntos += 1
-        del diccionario_celdas_puntos[pos_actual]  # elimina solo del diccionario de puntos
+        moverFantasmas(pacman_y, pacman_x, fantasmas)
+        if is_comido(pacman_y, pacman_x, fantasmas):
+            pacman_x, pacman_y = mover_pacman(mapa, 14, 13, direccion, velocidad)
+            fantasmasLiberados=reiniciarFantasmas(fantasmas)
+            vidas -= 1
+            if vidas <= 0:
+                running = False
+        else:
+            if is_colision(pacman_y, pacman_x, fantasmas)==1: #se come a alguno
+                fantasmasLiberados-=1
+                tiempo_liberar = time.time()
 
 
-    #TELEPORT (ENDER PEARLLL)
-    if pacman_x == 0 and pacman_y == 12:
-        print("TP")
-        pos_tp = (25, 12)
-        pos_previa_tp = (26, 12) #en realidad es la posicion siguiente, pero con respecto al pacman es la que le queda de espaldas
-        pacman_x = 25   #Porque 25? Se esta saltando la celda 26, si se cambia da error, pero no entiendo porque(Creo que es para que no se encicle)
-        if pos_tp in diccionario_celdas_puntos:
-            # xy-> 25,12 y 26,12 vacio en tp
-            mapa[pacman_y][pacman_x].valor = 'vacio'
-            mapa[pacman_y][pacman_x+1].valor = 'vacio'
-            puntos += 2
-            del diccionario_celdas_puntos[pos_tp]
-            del diccionario_celdas_puntos[pos_previa_tp]
-    if pacman_x == 26 and pacman_y == 12:
-        print("TP")
-        pos_tp = (1, 12)
-        pos_previa_tp = (0, 12)
-        pacman_x = 1
-        if pos_tp in diccionario_celdas_puntos:
+        #TELEPORT (ENDER PEARLLL)
+        if pacman_x == 0 and pacman_y == 12:
+            print("TP")
+            pos_tp = (25, 12)
+            pos_previa_tp = (26, 12) #en realidad es la posicion siguiente, pero con respecto al pacman es la que le queda de espaldas
+            pacman_x = 25   #Porque 25? Se esta saltando la celda 26, si se cambia da error, pero no entiendo porque(Creo que es para que no se encicle)
+            if pos_tp in diccionario_celdas_puntos:
+                # xy-> 25,12 y 26,12 vacio en tp
+                mapa[pacman_y][pacman_x].valor = 'vacio'
+                mapa[pacman_y][pacman_x+1].valor = 'vacio'
+                puntos += 2
+                del diccionario_celdas_puntos[pos_tp]
+                del diccionario_celdas_puntos[pos_previa_tp]
+        if pacman_x == 26 and pacman_y == 12:
+            print("TP")
+            pos_tp = (1, 12)
+            pos_previa_tp = (0, 12)
+            pacman_x = 1
+            if pos_tp in diccionario_celdas_puntos:
 
-            # xy-> 1,12 y 0,12 vacio en tp
-            mapa[pacman_y][pacman_x].valor = 'vacio'
-            mapa[pacman_y][pacman_x-1].valor = 'vacio'
-            puntos += 2
-            del diccionario_celdas_puntos[pos_tp]
-            del diccionario_celdas_puntos[pos_previa_tp]
+                # xy-> 1,12 y 0,12 vacio en tp
+                mapa[pacman_y][pacman_x].valor = 'vacio'
+                mapa[pacman_y][pacman_x-1].valor = 'vacio'
+                puntos += 2
+                del diccionario_celdas_puntos[pos_tp]
+                del diccionario_celdas_puntos[pos_previa_tp]
 
-    # Dibujar el mapa y a PACMAN
-    if tiempo_liberar is not None:
-        tiempo_transcurrido = int(time.time() - tiempo_liberar)
-        if tiempo_transcurrido >= 10:
-            tiempo_liberar = None
-            tiempo_transcurrido = None
-            chase_fantasmas()
+        # Dibujar el mapa y a PACMAN
+        if tiempo_liberar is not None:
+            tiempo_transcurrido = int(time.time() - tiempo_liberar)
+            if tiempo_transcurrido >= 10:
+                tiempo_liberar = None
+                tiempo_transcurrido = None
+                chase_fantasmas()
 
 
     dibujar_mapa(mapa)
