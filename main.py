@@ -21,10 +21,14 @@ background_inicio = pygame.image.load('PNGs/background_inicio.png')
 background_wwcd = pygame.image.load('PNGs/wwcd2.png')
 
 #vida, puntos y muerte
-vidas = 3
+vidas = 30
 fuente_vidas_puntos = pygame.font.Font(None, 30) #representa puntos o vida como texto
 corazon_img = pygame.image.load('PNGs/corazon.png')
 gameOver_img = pygame.image.load('PNGs/gameOver2.png')
+
+#nivel
+nivel = 1
+velocidad_juego=200
 
 #puntos
 puntos=0
@@ -83,6 +87,7 @@ direccion = 2
 # Diccionario para almacenar las posiciones de las celdas que no sean 'pared'. Para no tener que recorrer toda la matiz en cada vuelta del while
 # Inicializar dos diccionarios
 diccionario_celdas_puntos= {}        #se modifica con cada movimiento de pacman, elimina por donde va comiendo pacman
+diccionario_celdas_puntos2= {}        #NO se modifica con cada movimiento de pacman, elimina por donde va comiendo pacman
 diccionario_celdas_items = {}        #No se modifica. Para tener presente las celdas en las que se puede mover y pueden haber items
 diccionario_celdas_pared = {}        #No se modifica. Para dibujar el mapa
 
@@ -153,15 +158,20 @@ def inicializar_mapa(mapa):
 
             if celda.valor == 'punto':
                 diccionario_celdas_puntos[(x, y)] = 'punto'
+                diccionario_celdas_puntos2[(x, y)] = 'punto'
                 diccionario_celdas_items[(x, y)] = 'punto'
             elif celda.valor == 'fruta':
                 diccionario_celdas_items[(x, y)] = 'fruta'
             elif celda.valor == 'pildora':
                 diccionario_celdas_items[(x, y)] = 'pildora'
                 diccionario_celdas_puntos[(x, y)] = 'pildora'
+                diccionario_celdas_puntos2[(x, y)] = 'pildora'
             elif celda.valor == 'pared':
                 diccionario_celdas_pared[(x, y)] = 'pared'
 
+def reset_mapa():
+    for (x, y) in diccionario_celdas_puntos2.keys():
+        mapa[y][x].valor = 'punto'
 
 
 # Dibujar el mapa en pantalla
@@ -476,11 +486,25 @@ while running:
     dibujar_fantasmas(fantasmas)
     dibujar_vidas(vidas)
     n+=1    #cantidad de iteraciones
-    print(mapa[pacman_y][pacman_x].id, mapa[pacman_y-1][pacman_x-1].olor, mapa[pacman_y][pacman_x].olor, n, pacman_x, pacman_y)
+    print(mapa[pacman_y][pacman_x].id, mapa[pacman_y-1][pacman_x-1].olor, mapa[pacman_y][pacman_x].olor, n, pacman_x, pacman_y, nivel)
     #creo que mapa[pacman_y-1][pacman_x-1].olor, es un poco ilogico porque al ser y-1 x-1, estaria en diagonal de Pacman
     if is_victoria(mapa):
-        victoria()
-        running = False
+        if nivel == 1:
+            nivel+=1
+            reset_mapa()
+            time_delay = 160
+            diccionario_celdas_puntos = diccionario_celdas_puntos2
+
+        elif nivel == 2:
+            nivel += 1
+            reset_mapa()
+            time_delay = 140
+            diccionario_celdas_puntos = diccionario_celdas_puntos2
+
+        elif nivel==3:
+            victoria()
+            running = False
+
 
     if vidas==0:
         game_over()
@@ -492,4 +516,4 @@ while running:
     # Actualizar la pantalla
     pygame.display.flip()
     #controlar velocidad
-    pygame.time.delay(200)
+    pygame.time.delay(100)
