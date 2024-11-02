@@ -93,49 +93,56 @@ diccionario_celdas_pared = {}        #No se modifica. Para dibujar el mapa
 
 
 #Supuestamente seria para A*(No tocar)
-def reconstruir_camino(nodo):
-    camino = []
-    while nodo:
-        camino.append(nodo)
-        nodo = nodo.anterior  # Retrocede a la celda anterior
-    return camino[::-1]  # Devuelve el camino en orden desde el inicio al objetivo
+# def reconstruir_camino(nodo):
+#     camino = []
+#     while nodo:
+#         camino.append(nodo)
+#         nodo = nodo.anterior  # Retrocede a la celda anterior
+#     return camino[::-1]  # Devuelve el camino en orden desde el inicio al objetivo
+
+
 
 #No tocar(Aunque ahorita no hace nada)
-def a_asterisco(inicio,objetivo):
-    sin_procesar = []
-    procesados = []
+# def a_star(inicio,objetivo):
+#     sin_procesar = []
+#     procesados = []
+#
+#     # Agrega el nodo inicial
+#     inicio.g = 0
+#     inicio.h = inicio.calcular_distancia(objetivo)
+#     sin_procesar.append(inicio)
+#
+#     while sin_procesar:
+#         # Ordena la lista abierta por f y selecciona el nodo con menor f
+#         sin_procesar.sort(key=lambda celda: celda.calcular_f())
+#         actual = sin_procesar.pop(0)  # Toma el nodo con menor f
+#
+#         # Si hemos llegado al objetivo, podemos reconstruir el camino
+#         if actual == objetivo:
+#             return reconstruir_camino(actual)
+#
+#         procesados.append(actual)
+#
+#         # Para cada vecino
+#         for vecino in [actual.arriba, actual.abajo, actual.izquierda, actual.derecha]:
+#             if vecino is not None and vecino.valor != 'pared' and vecino not in procesados:
+#                 # Calcular g para el vecino
+#                 g_temp = actual.g + 1  # Suponiendo que el costo de moverse a un vecino es 1
+#
+#                 if g_temp < vecino.g:
+#                     # Si el nuevo g es mejor, actualiza
+#                     vecino.g = g_temp
+#                     vecino.h = vecino.calcular_distancia(objetivo)
+#                     vecino.anterior = actual  # Guarda la celda anterior
+#                     if vecino not in sin_procesar:
+#                         sin_procesar.append(vecino)
+#
+#     return None  # No se encontró camino
 
-    # Agrega el nodo inicial
-    inicio.g = 0
-    inicio.h = inicio.calcular_distancia(objetivo)
-    sin_procesar.append(inicio)
+import heapq
 
-    while sin_procesar:
-        # Ordena la lista abierta por f y selecciona el nodo con menor f
-        sin_procesar.sort(key=lambda celda: celda.calcular_f())
-        actual = sin_procesar.pop(0)  # Toma el nodo con menor f
 
-        # Si hemos llegado al objetivo, podemos reconstruir el camino
-        if actual == objetivo:
-            return reconstruir_camino(actual)
 
-        procesados.append(actual)
-
-        # Para cada vecino
-        for vecino in [actual.arriba, actual.abajo, actual.izquierda, actual.derecha]:
-            if vecino and vecino.valor != 'pared' and vecino not in procesados:
-                # Calcular g para el vecino
-                g_temp = actual.g + 1  # Suponiendo que el costo de moverse a un vecino es 1
-
-                if g_temp < vecino.g:
-                    # Si el nuevo g es mejor, actualiza
-                    vecino.g = g_temp
-                    vecino.h = vecino.calcular_distancia(objetivo)
-                    vecino.anterior = actual  # Guarda la celda anterior
-                    if vecino not in sin_procesar:
-                        sin_procesar.append(vecino)
-
-    return None  # No se encontró camino
 
 
 def inicializar_mapa(mapa):

@@ -1,4 +1,5 @@
 from symtable import Class
+import time
 
 from Celda import *
 from Mapa import *
@@ -34,21 +35,50 @@ class Fantasma:
 
 
 class Blinky(Fantasma):
-    def __init__(self,actual):
+    def __init__(self, actual):
         super().__init__(actual)
-        self.imagen[0]=pygame.image.load('PNGs/BlinkyLeft.png')     #Izquierda
-        self.imagen[1]=pygame.image.load('PNGs/BlinkyRight.png')    #Derecha
-        self.imagen[2]=pygame.image.load('PNGs/scaredGhost.png')    #Asustado
+        self.imagen[0] = pygame.image.load('PNGs/BlinkyLeft.png')  # Izquierda
+        self.imagen[1] = pygame.image.load('PNGs/BlinkyRight.png')  # Derecha
+        self.imagen[2] = pygame.image.load('PNGs/scaredGhost.png')  # Asustado
         self.imagen_Actual = self.imagen[0]
+        self.camino = []
+
+    def decidir_donde_viajar(self, destino):
+        tamano = len(self.camino)
+        if tamano == 0:
+            self.camino = self.celda_actual.a_star(self.celda_actual,destino)
+            if self.camino == None:
+                self.celda_actual = self.celda_actual.retornar_vecino_con_menor_distancia(destino, self.celda_anterior)
+                self.camino = []
+            else:
+                self.camino.pop(0)
+                self.celda_actual = self.camino.pop(0)
+        else:
+            self.celda_actual = self.camino.pop(0)
 
 
-    def decidir_donde_viajar(self,destino):
-        nueva_celda = self.celda_actual.retornar_vecino_con_menor_distancia(destino, self.celda_anterior)
-        self.celda_anterior = self.celda_actual
-        self.celda_actual = nueva_celda
-
-    def imprimir(self,screen):
+    def imprimir(self, screen):
         super().imprimir(screen)
+    # def __init__(self,actual):
+    #     super().__init__(actual)
+    #     self.imagen[0]=pygame.image.load('PNGs/BlinkyLeft.png')     #Izquierda
+    #     self.imagen[1]=pygame.image.load('PNGs/BlinkyRight.png')    #Derecha
+    #     self.imagen[2]=pygame.image.load('PNGs/scaredGhost.png')    #Asustado
+    #     self.imagen_Actual = self.imagen[0]
+    #
+    #
+    # def decidir_donde_viajar(self,destino):
+    #     # nueva_celda = self.celda_actual.retornar_vecino_con_menor_distancia(destino, self.celda_anterior)
+    #     # self.celda_anterior = self.celda_actual
+    #     # self.celda_actual = nueva_celda
+    #     celda = self.celda_actual.a_star_limited(self.celda_actual, destino)
+    #     if celda is not None:
+    #         self.celda_actual=celda[1]
+    #     else:
+    #         self.celda_actual = self.celda_actual.retornar_vecino_con_menor_distancia(destino, self.celda_anterior)
+    #
+    # def imprimir(self,screen):
+    #     super().imprimir(screen)
 
 
 class Pinky(Fantasma): #(Rosa): Intenta predecir la dirección de Pacman y cortarle el paso
