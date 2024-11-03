@@ -337,10 +337,10 @@ def mover_pacman(mapa, pacman_x, pacman_y, direccion, velocidad):
 
 tiempo_liberar = None
 fantasmas = [
-        Blinky(mapa[10][13]),
-        Pinky(mapa[10][13]),
-        Inky(mapa[10][13]),
-        Clyde(mapa[10][13],mapa[24][1])
+        Blinky(mapa[10][13],mapa[24][25]),
+        Pinky(mapa[10][13],mapa[24][1]),
+        Inky(mapa[10][13],mapa[1][1]),
+        Clyde(mapa[10][13],mapa[1][25])
     ]
 
 def liberarFantasmas(fantasmas,fantasmasLiberados):

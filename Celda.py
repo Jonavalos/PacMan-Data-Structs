@@ -1,5 +1,6 @@
 import heapq
 import itertools
+import random
 class Celda:
     def __init__(self,x, valor):
         self.id = id           # X,Y
@@ -179,3 +180,18 @@ class Celda:
     def __hash__(self):
         # Retorna un hash basado en los atributos que definen la igualdad
         return hash(self.id)
+
+    def obtener_vecino_aleatorio(self, anterior):
+        vecinos = [self.arriba, self.abajo, self.izquierda, self.derecha]
+        # Filtrar las celdas no nulas
+        vecinos_validos = [vecino for vecino in vecinos if vecino is not None]
+
+        # Eliminar el vecino anterior de la lista de vecinos válidos, si está presente
+        if anterior in vecinos_validos:
+            vecinos_validos.remove(anterior)
+
+        if not vecinos_validos:
+            return None  # No hay vecinos válidos
+
+        # Retornar un vecino válido al azar
+        return random.choice(vecinos_validos)
