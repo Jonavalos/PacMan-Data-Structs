@@ -1,14 +1,15 @@
+import os
 from pickle import GLOBAL
 import time
 from Fantasma import *
 
 import pygame
+import pickle
 from pygame import mixer
 from pygame.examples.testsprite import Static
 
 from Mapa import *
 n=0
-fantasmasLiberados = 0
 # Initialize pygame
 pygame.init()
 
@@ -20,21 +21,106 @@ background = pygame.image.load('PNGs/background.png')
 background_inicio = pygame.image.load('PNGs/background_inicio.png')
 background_wwcd = pygame.image.load('PNGs/wwcd2.png')
 
-#vida, puntos y muerte
+#Variables para controlar el estado del juego
+is_paused = False
+puntos=0
+nivel = 1
+velocidad_juego=200
 vidas = 30
 fuente_vidas_puntos = pygame.font.Font(None, 30) #representa puntos o vida como texto
 corazon_img = pygame.image.load('PNGs/corazon.png')
 gameOver_img = pygame.image.load('PNGs/gameOver2.png')
+fantasmasLiberados = 0
+estado_juego = {"Score: ": puntos, "nivel: ": nivel, "vidas: ": vidas}
+save_file = "savegame.pkl"
 
-#nivel
-nivel = 1
-velocidad_juego=200
+# Cargar el archivo del juego si es que llegara a haber 1 partida guardada
+if os.path.exists(save_file):
+    with open(save_file, 'rb') as file:
+        estado_juego = pickle.load(file)
 
-#puntos
-puntos=0
+#guardar el estado del juego
+def guardar_partida():
+    global puntos, nivel, vidas
+    print("Guardando partida")
+    estado_juego = {
+        "Score": puntos,
+        "nivel": nivel,
+        "vidas": vidas
+    }
+    with open(save_file, 'wb') as file:
+        pickle.dump(estado_juego, file)
 
-#juego pausado (con barra espaciadora)
-is_paused = False
+#Funcion encargada de cargar el estado del juego
+def cargar_partida():
+    global puntos, nivel, vidas
+    if os.path.exists(save_file):
+        try:
+            with open(save_file, 'rb') as file:
+                estado_juego = pickle.load(file)
+                puntos = estado_juego.get("Score: ", 0)
+                nivel = estado_juego.get("nivel: ", 0)
+                vidas = estado_juego.get("vidas: ", 10)
+                print("Cargando partida", estado_juego)
+        except Exception as e:
+            print("Error al cargar la partida")
+    else:
+        print("No existe la partida")
+
+
+#Prueba
+def mostrar_menu_opciones():
+    # Muestra un menú para que el usuario elija entre cargar partida o inicializar mapa
+    opciones = ["Cargar Partida", "Inicializar Mapa"]
+    print("Seleccione una opción:")
+    for i, opcion in enumerate(opciones):
+        print(f"{i + 1}. {opcion}")
+
+    seleccion = int(input("Ingrese el número de su elección: "))
+    return seleccion
+
+# Función para mostrar el menú
+def mostrar_menu():
+    screen.fill((0, 0, 0))  # Pantalla negra
+    font = pygame.font.Font(None, 40)
+    opciones = ["Continuar", "Guardar partida", "Salir"]
+    for i, texto in enumerate(opciones):
+        color = (255, 255, 255)
+        texto_render = font.render(texto, True, color)
+        screen.blit(texto_render, (MAPA_ANCHO // 2 - 100, MAPA_ALTO // 2 + i * 50))
+    pygame.display.flip()
+
+
+# Función para manejar el menú
+def manejar_menu():
+    global is_paused
+    mostrar_menu()
+    seleccion = 0
+    font = pygame.font.Font(None, 40)
+
+    while is_paused:
+        for evento in pygame.event.get():
+            if evento.type == pygame.KEYDOWN:
+                if evento.key == pygame.K_UP:
+                    seleccion = (seleccion - 1) % 3
+                elif evento.key == pygame.K_DOWN:
+                    seleccion = (seleccion + 1) % 3
+                elif evento.key == pygame.K_SPACE:
+                    if seleccion == 0:  # Continuar
+                        is_paused = False
+                    elif seleccion == 1:  # Guardar partida
+                        guardar_partida()
+                        print("Partida guardada.")
+                    elif seleccion == 2:  # Salir
+                        pygame.quit()
+                        exit()
+            screen.fill((0, 0, 0))
+            for i, texto in enumerate(["Continuar", "Guardar partida", "Salir"]):
+                color = (255, 0, 0) if i == seleccion else (255, 255, 255)
+                texto_render = font.render(texto, True, color)
+                screen.blit(texto_render, (MAPA_ANCHO // 2 - 100, MAPA_ALTO // 2 + i * 50))
+            pygame.display.flip()
+
 
 # Obtener las dimensiones de las imagenes para centrarlas
 
@@ -355,6 +441,16 @@ def reiniciarFantasmas(fantasmas):
 
 def inicializar_juego():
     inicializar_mapa(mapa)
+    cargar_partida()
+    #seleccion = mostrar_menu_opciones()
+    #if seleccion == 1:
+    #    cargar_partida()
+    #elif seleccion == 2:
+    #    mapa = "mapa"  # Asigna el mapa deseado aquí
+    #    inicializar_mapa(mapa)
+    #else:
+    #    print("Selección no válida. Por favor, elija 1 o 2.")
+    #    return
     mixer.music.load('musica/pacman_beginning.wav')
     mixer.music.play()
     screen.fill((255, 255, 255))  # RGB
@@ -418,6 +514,7 @@ while running:
                 a = 1 #guardar con s (save)
             if event.key == pygame.K_SPACE:
                 is_paused = not is_paused  #  toggle is_paused con espacio
+                manejar_menu()
 
     if not is_paused: #la logica del juego no se ejecuta mientras este en pausa, solo la parte grafica. entonces parece que esta pausado
 
@@ -523,4 +620,4 @@ while running:
     # Actualizar la pantalla
     pygame.display.flip()
     #controlar velocidad
-    pygame.time.delay(100)
+    pygame.time.delay(200)

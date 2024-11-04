@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/PacMan-Data-Structs.iml" filepath="$PROJECT_DIR$/.idea/PacMan-Data-Structs.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/Proyecto-PACMAN.iml" filepath="$PROJECT_DIR$/.idea/Proyecto-PACMAN.iml" />
     </modules>
   </component>
 </project>
