@@ -423,7 +423,7 @@ def mover_pacman(mapa, pacman_x, pacman_y, direccion, velocidad):
 
 
 fantasmas = [
-        #Blinky(mapa[10][13],mapa[24][25]),
+        Blinky(mapa[10][13],mapa[24][25]),
         # Pinky(mapa[10][13],mapa[24][1]),
         # Inky(mapa[10][13],mapa[1][1]),
         Clyde(mapa[10][13],mapa[1][25])
@@ -523,7 +523,7 @@ while running:
 
         # Mover al PACMAN y actualizar el mapa
         pacman_x, pacman_y = mover_pacman(mapa, pacman_x, pacman_y, direccion, velocidad)
-        if fantasmasLiberados < 1 and n % 30 == 0 and n != 0:
+        if fantasmasLiberados < 2 and n % 30 == 0 and n != 0:
             liberarFantasmas(fantasmas,fantasmasLiberados)
             fantasmasLiberados += 1
 
