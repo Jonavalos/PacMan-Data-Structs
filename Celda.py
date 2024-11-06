@@ -170,6 +170,54 @@ class Celda:
 
         return None  # Si no se encuentra un camino de 10 celdas
 
+    def a_star_sin_devolverse(self, inicio, objetivo, nodo_anterior):
+        sin_procesar = []
+        procesados = []
+
+        # Agregar el nodo inicial
+        inicio.g = 0
+        inicio.h = inicio.calcular_distancia(objetivo)
+        sin_procesar.append(inicio)
+
+        # Diccionario para llevar la cuenta de los padres
+        padres = {inicio: None}
+
+        primer_iteracion = True  # Variable para controlar la primera iteración
+
+        while sin_procesar:
+            # Ordenar y obtener el nodo con el costo f más bajo
+            sin_procesar.sort(key=lambda celda: celda.calcular_f(objetivo))
+            actual = sin_procesar.pop(0)
+
+            # Si se alcanza el objetivo, retornar inmediatamente
+            if actual == objetivo:
+                return self.reconstruir_ruta(padres, actual)  # Pasar padres aquí
+
+            # Agregar el nodo actual a los procesados
+            procesados.append(actual)
+
+            # Si la longitud del camino alcanzado es 10 celdas, retornamos el camino
+            if len(procesados) == 10:
+                return self.reconstruir_ruta(padres, actual)  # Límite de 10 celdas
+
+            # Iterar sobre los vecinos
+            for vecino in [actual.arriba, actual.abajo, actual.izquierda, actual.derecha]:
+                if vecino is not None and vecino.valor != 'pared' and vecino not in procesados and vecino not in sin_procesar:
+                    # Verificamos si es la primera iteración y si el vecino es el nodo anterior
+                    if primer_iteracion and vecino == nodo_anterior:  # Si el vecino es el nodo anterior, lo saltamos
+                        continue
+
+                    # Calcular los costos y configurar el padre
+                    vecino.g = actual.g + 1  # Suponiendo un costo uniforme
+                    vecino.h = vecino.calcular_distancia(objetivo)
+                    padres[vecino] = actual  # Establecer el padre
+                    sin_procesar.append(vecino)  # Agregar el vecino a la lista de nodos a procesar
+
+            # Después de la primera iteración, desactivamos la restricción
+            primer_iteracion = False
+
+        return None  # Si no se encuentra un camino de 10 celdas
+
     def reconstruir_ruta(self, padres, nodo_actual):
         ruta = []
         while nodo_actual is not None:

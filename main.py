@@ -10,6 +10,7 @@ from pygame.examples.testsprite import Static
 
 from Mapa import *
 n=0
+tiempo_liberar = None
 # Initialize pygame
 pygame.init()
 
@@ -406,6 +407,8 @@ def mover_pacman(mapa, pacman_x, pacman_y, direccion, velocidad):
             del diccionario_celdas_items[pos_actual]  # elimina pildoras del diccionario de items
             mapa[pacman_y][pacman_x].valor = 'vacio'
             asustar_fantasmas()
+            global tiempo_liberar
+            tiempo_liberar = time.time()
 
         mapa[pacman_y][pacman_x].valor = 'vacio'
         aumentar_puntos()
@@ -419,13 +422,10 @@ def mover_pacman(mapa, pacman_x, pacman_y, direccion, velocidad):
     return pacman_x, pacman_y
 
 
-
-
-tiempo_liberar = None
 fantasmas = [
-        Blinky(mapa[10][13],mapa[24][25]),
-        Pinky(mapa[10][13],mapa[24][1]),
-        Inky(mapa[10][13],mapa[1][1]),
+        #Blinky(mapa[10][13],mapa[24][25]),
+        # Pinky(mapa[10][13],mapa[24][1]),
+        # Inky(mapa[10][13],mapa[1][1]),
         Clyde(mapa[10][13],mapa[1][25])
     ]
 
@@ -436,6 +436,7 @@ def reiniciarFantasmas(fantasmas):
     for fantasma in fantasmas:
         fantasma.celda_actual = mapa[10][13]
         fantasma.liberado = False
+        fantasma.camino = []
     return 0
 
 
@@ -461,19 +462,21 @@ def inicializar_juego():
 def asustar_fantasmas():
     for fantasma in fantasmas:
         fantasma.modo = 'frightened'
+        fantasma.camino=[]
 
     return 0
 
 def chase_fantasmas():
     for fantasma in fantasmas:
         fantasma.modo = 'chase'
+        fantasma.camino=[]
     return 0
 
 
 def is_colision(p_y, p_x, fantasmas):
     for fantasma in fantasmas:
         if fantasma.celda_actual.id == (p_y, p_x) and fantasma.modo!='frightened': #se lo comen
-            #reiniciarFantasmas(fantasmas)
+            reiniciarFantasmas(fantasmas)
             print("se lo comieron")
             return 0
         if fantasma.celda_actual.id == (p_y, p_x) and fantasma.modo == 'frightened': #se los come
@@ -520,7 +523,7 @@ while running:
 
         # Mover al PACMAN y actualizar el mapa
         pacman_x, pacman_y = mover_pacman(mapa, pacman_x, pacman_y, direccion, velocidad)
-        if fantasmasLiberados < 4 and n % 30 == 0 and n != 0:
+        if fantasmasLiberados < 1 and n % 30 == 0 and n != 0:
             liberarFantasmas(fantasmas,fantasmasLiberados)
             fantasmasLiberados += 1
 
@@ -546,7 +549,6 @@ while running:
         else:
             if is_colision(pacman_y, pacman_x, fantasmas)==1: #se come a alguno
                 fantasmasLiberados-=1
-                tiempo_liberar = time.time()
 
 
         #TELEPORT (ENDER PEARLLL)
@@ -577,6 +579,7 @@ while running:
                 del diccionario_celdas_puntos[pos_previa_tp]
 
         # Dibujar el mapa y a PACMAN
+
         if tiempo_liberar is not None:
             tiempo_transcurrido = int(time.time() - tiempo_liberar)
             if tiempo_transcurrido >= 10:
@@ -590,7 +593,7 @@ while running:
     dibujar_fantasmas(fantasmas)
     dibujar_vidas(vidas)
     n+=1    #cantidad de iteraciones
-    print(mapa[pacman_y][pacman_x].id, mapa[pacman_y-1][pacman_x-1].olor, mapa[pacman_y][pacman_x].olor, n, pacman_x, pacman_y, nivel)
+    #print(mapa[pacman_y][pacman_x].id, mapa[pacman_y-1][pacman_x-1].olor, mapa[pacman_y][pacman_x].olor, n, pacman_x, pacman_y, nivel)
     #creo que mapa[pacman_y-1][pacman_x-1].olor, es un poco ilogico porque al ser y-1 x-1, estaria en diagonal de Pacman
     if is_victoria(mapa):
         if nivel == 1:

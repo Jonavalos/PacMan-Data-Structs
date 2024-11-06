@@ -46,37 +46,95 @@ class Blinky(Fantasma):     #Esquina abajo derecha
         self.imagen[2] = pygame.image.load('PNGs/scaredGhost.png')  # Asustado
         self.imagen_Actual = self.imagen[0]
 
+    # def decidir_donde_viajar(self, destino):
+    #     tamano = len(self.camino)
+    #     if self.modo == 'chase':
+    #         if tamano == 0:  # Solo recalcular camino cuando está completamente vacío
+    #             # Calcular el camino hacia el destino
+    #             self.camino = self.celda_actual.a_star(self.celda_actual, destino)
+    #             # Verificar si se encontró un camino válido
+    #             if self.camino is None:
+    #                 # Si no hay camino, moverse al vecino más cercano sin recalcular
+    #                 nueva_celda = self.celda_actual.retornar_vecino_con_menor_distancia(destino, self.celda_anterior)
+    #                 self.celda_anterior = self.celda_actual
+    #                 self.celda_actual = nueva_celda
+    #                 self.camino = []  # Mantener camino vacío hasta el próximo intento
+    #                 return
+    #             else:
+    #                 # Omitir la primera celda para evitar que vuelva a la misma posición
+    #                 self.camino.pop(0)
+    #         # Extraer la siguiente celda del camino calculado
+    #         if self.camino:  # Asegurarse de que todavía hay celdas en el camino
+    #             nueva_celda = self.camino.pop(0)
+    #             self.celda_anterior = self.celda_actual
+    #             self.celda_actual = nueva_celda
+    #     if self.modo == 'frightened':
+    #         nueva_celda = self.celda_actual.obtener_vecino_aleatorio(self.celda_anterior)
+    #         self.celda_anterior = self.celda_actual
+    #         self.celda_actual = nueva_celda
+    #         return
+    #     if self.modo == 'scatter':
+    #         if tamano == 0:
+    #             self.camino = self.celda_actual.a_star(self.celda_actual, self.esquina)
+    #             if self.camino is None:
+    #                 nueva_celda = self.celda_actual.retornar_vecino_con_menor_distancia(self.esquina, self.celda_anterior)
+    #                 self.celda_anterior = self.celda_actual
+    #                 self.celda_actual = nueva_celda
+    #                 self.camino = []
+    #             else:
+    #                 self.camino.pop(0)
+    #                 nueva_celda = self.camino.pop(0)
+    #                 self.celda_anterior = self.celda_actual
+    #                 self.celda_actual = nueva_celda
+    #         else:
+    #             nueva_celda = self.camino.pop(0)
+    #             self.celda_anterior = self.celda_actual
+    #             self.celda_actual = nueva_celda
+
     def decidir_donde_viajar(self, destino):
         tamano = len(self.camino)
+
+        # Verificar transición de modo, si cambia de 'frightened' a 'chase', reiniciar el camino
         if self.modo == 'chase':
-            if tamano == 0:
-                self.camino = self.celda_actual.a_star(self.celda_actual,destino)
+            if tamano == 0:  # Solo recalcular camino cuando está completamente vacío
+                # Calcular el camino hacia el destino
+                self.camino = self.celda_actual.a_star(self.celda_actual, destino)
+
+                # Verificar si se encontró un camino válido
                 if self.camino is None:
+                    # Si no hay camino, moverse al vecino más cercano sin recalcular
                     nueva_celda = self.celda_actual.retornar_vecino_con_menor_distancia(destino, self.celda_anterior)
                     self.celda_anterior = self.celda_actual
                     self.celda_actual = nueva_celda
-                    self.camino = []
+                    self.camino = []  # Mantener camino vacío hasta el próximo intento
+                    return
                 else:
+                    # Omitir la primera celda para evitar que vuelva a la misma posición
                     self.camino.pop(0)
-                    nueva_celda = self.camino.pop(0)
-                    self.celda_anterior = self.celda_actual
-                    self.celda_actual = nueva_celda
-            else:
+
+            # Extraer la siguiente celda del camino calculado
+            if self.camino:  # Asegurarse de que todavía hay celdas en el camino
                 nueva_celda = self.camino.pop(0)
                 self.celda_anterior = self.celda_actual
                 self.celda_actual = nueva_celda
+
+        # Modo asustado (moverse aleatoriamente)
         if self.modo == 'frightened':
             nueva_celda = self.celda_actual.obtener_vecino_aleatorio(self.celda_anterior)
             self.celda_anterior = self.celda_actual
             self.celda_actual = nueva_celda
+            return
+
+        # Modo scatter (ir a las esquinas)
         if self.modo == 'scatter':
             if tamano == 0:
                 self.camino = self.celda_actual.a_star(self.celda_actual, self.esquina)
                 if self.camino is None:
-                    nueva_celda = self.celda_actual.retornar_vecino_con_menor_distancia(self.esquina, self.celda_anterior)
+                    nueva_celda = self.celda_actual.retornar_vecino_con_menor_distancia(self.esquina,
+                                                                                        self.celda_anterior)
                     self.celda_anterior = self.celda_actual
                     self.celda_actual = nueva_celda
-                    self.camino = []
+                    self.camino = []  # Vaciar el camino hasta el próximo intento
                 else:
                     self.camino.pop(0)
                     nueva_celda = self.camino.pop(0)
@@ -86,8 +144,6 @@ class Blinky(Fantasma):     #Esquina abajo derecha
                 nueva_celda = self.camino.pop(0)
                 self.celda_anterior = self.celda_actual
                 self.celda_actual = nueva_celda
-
-
 
 
 def imprimir(self, screen):
@@ -171,72 +227,80 @@ class Clyde(Fantasma):  # (Naranja): Se comporta de manera errática, a veces pe
         self.imagen_Actual = self.imagen[0]
         self.modo = 'scatter'
 
-
-    def decidir_donde_viajar(self,destino):
+    def decidir_donde_viajar(self, destino):
         tamano = len(self.camino)
+
+        # Modo 'chase': El fantasma persigue a Pac-Man
         if self.modo == 'chase':
             if tamano == 0:
+                # Calcular el camino hacia el destino (Pac-Man)
                 self.camino = self.celda_actual.a_star(self.celda_actual, destino)
                 if self.camino is None:
+                    # Si no hay camino, moverse al vecino más cercano
                     nueva_celda = self.celda_actual.retornar_vecino_con_menor_distancia(destino, self.celda_anterior)
                     self.celda_anterior = self.celda_actual
                     self.celda_actual = nueva_celda
-                    self.camino = []
-                    if self.celda_actual.calcular_distancia(destino) <= 8:
-                        self.modo = 'scatter'
-                        return
+                    self.camino=[]
                 else:
+                    # Omitir la primera celda para evitar que vuelva a la misma posición
                     self.camino.pop(0)
                     nueva_celda = self.camino.pop(0)
                     self.celda_anterior = self.celda_actual
                     self.celda_actual = nueva_celda
-                    if self.celda_actual.calcular_distancia(destino) <= 8:
-                        self.modo = 'scatter'
-                        self.camino = []
-                        return
+
+                # Si Clyde se acerca demasiado a Pac-Man, cambia a modo 'scatter'
+                if self.celda_actual.calcular_distancia(destino) <= 8:
+                    self.modo = 'scatter'
+                    return
+
             else:
                 nueva_celda = self.camino.pop(0)
                 self.celda_anterior = self.celda_actual
                 self.celda_actual = nueva_celda
+
+                # Si Clyde se acerca demasiado a Pac-Man, cambia a modo 'scatter'
                 if self.celda_actual.calcular_distancia(destino) <= 8:
                     self.modo = 'scatter'
-                    self.camino = []
                     return
 
-        if self.modo == 'frightened':
+        # Modo 'frightened': El fantasma huye aleatoriamente
+        elif self.modo == 'frightened':
             nueva_celda = self.celda_actual.obtener_vecino_aleatorio(self.celda_anterior)
             self.celda_anterior = self.celda_actual
             self.celda_actual = nueva_celda
-            return
-        if self.modo == 'scatter':
+
+        # Modo 'scatter': El fantasma se aleja a una esquina
+        elif self.modo == 'scatter':
             if tamano == 0:
-                self.camino = self.celda_actual.a_star(self.celda_actual, self.esquina)
+                # Calcular el camino hacia la esquina
+                self.camino = self.celda_actual.a_star_sin_devolverse(self.celda_actual, self.esquina,
+                                                                      self.celda_anterior)
                 if self.camino is None:
-                    nueva_celda = self.celda_actual.retornar_vecino_con_menor_distancia(self.esquina, self.celda_anterior)
+                    # Si no hay camino, moverse al vecino más cercano
+                    nueva_celda = self.celda_actual.retornar_vecino_con_menor_distancia(self.esquina,
+                                                                                        self.celda_anterior)
                     self.celda_anterior = self.celda_actual
                     self.celda_actual = nueva_celda
-                    self.camino = []
-                    if self.celda_actual == self.esquina:
-                        self.modo = 'chase'
-                        return
+                    self.camino=[]
                 else:
+                    # Omitir la primera celda para evitar que vuelva a la misma posición
                     self.camino.pop(0)
                     nueva_celda = self.camino.pop(0)
                     self.celda_anterior = self.celda_actual
                     self.celda_actual = nueva_celda
-                    if self.celda_actual == self.esquina:
-                        self.modo = 'chase'
-                        self.camino = []
-                        return
+
+                # Si llegó a la esquina, cambia a modo 'chase'
+                if self.celda_actual == self.esquina:
+                    self.modo = 'chase'
+
             else:
                 nueva_celda = self.camino.pop(0)
                 self.celda_anterior = self.celda_actual
                 self.celda_actual = nueva_celda
+
+                # Si llegó a la esquina, cambia a modo 'chase'
                 if self.celda_actual == self.esquina:
                     self.modo = 'chase'
-                    self.camino = []
-                    return
-
 
             # if self.modo =='scatter':
         #     nueva_celda = self.celda_actual.retornar_vecino_con_menor_distancia(self.esquina, self.celda_anterior)
