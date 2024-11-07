@@ -22,7 +22,8 @@ tiempo_spawn_fruta = None
 #cada 7 segundos multiplicador off aBAJO
 
 
-vector_pares = [(6, 12), (20, 12), (6, 5), (20, 5)]
+#CUANDO PONE LA FRUTA EN UN LUGAR DONDE YA NO HAY PUNTO, NO SE LA COME. USAR EL OTRO DICCIONARIO QUE NO SE MODIFICA
+
 
 def escoger_par_aleatorio2(diccionario):
     # Convierte las claves del diccionario en una lista de pares
@@ -455,11 +456,13 @@ def mover_pacman(mapa, pacman_x, pacman_y, direccion, velocidad):
 
         mapa[pacman_y][pacman_x].valor = 'vacio'
         aumentar_puntos()
+        if multiplicador:
+            aumentar_puntos()
+
         del diccionario_celdas_puntos[pos_actual]  # elimina solo del diccionario de puntos
         # sonido de chomp
         mixer.music.load('musica/pacman_chomp2.wav')
         mixer.music.play()
-
 
 
     return pacman_x, pacman_y
@@ -527,7 +530,7 @@ def multiplicador_on():
 
 
 def spawn_fruta_random():
-    (x,y) = escoger_par_aleatorio2(diccionario_celdas_items)
+    (x,y) = escoger_par_aleatorio2(diccionario_celdas_puntos) #ponerlo con el de puntos actuales o modificar abajo
     mapa[y][x].valor = 'fruta'
     print('SPAWN FRUTA')
     print(y,x)
