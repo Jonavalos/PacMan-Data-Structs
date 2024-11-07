@@ -260,3 +260,103 @@ class Celda:
         return random.choice(vecinos_validos)
 
 
+    def a_star_evitar_celda(self, inicio, objetivo, celda_a_evitar):
+        sin_procesar = []
+        procesados = []
+
+        # Agrega el nodo inicial
+        inicio.g = 0
+        inicio.h = inicio.calcular_distancia(objetivo)
+        sin_procesar.append(inicio)
+
+        # Diccionario para llevar la cuenta de los padres
+        padres = {inicio: None}
+
+        while sin_procesar:
+            # Ordenar y obtener el nodo con el costo f más bajo
+            sin_procesar.sort(key=lambda celda: celda.calcular_f(objetivo))
+            actual = sin_procesar.pop(0)
+
+            # Si se alcanza el objetivo, retornar la ruta
+            if actual == objetivo:
+                return self.reconstruir_ruta(padres, actual)
+
+            # Agregar el nodo actual a los procesados
+            procesados.append(actual)
+
+            # Iterar sobre los vecinos
+            for vecino in [actual.arriba, actual.abajo, actual.izquierda, actual.derecha]:
+                # Evitar el vecino si es la celda a evitar
+                if vecino == celda_a_evitar:
+                    continue
+
+                # Verificar que el vecino sea válido y no esté en procesados ni en sin_procesar
+                if vecino is not None and vecino.valor != 'pared' and vecino not in procesados and vecino not in sin_procesar:
+                    # Calcular los costos y configurar el padre
+                    vecino.g = actual.g + 1  # Costo uniforme
+                    vecino.h = vecino.calcular_distancia(objetivo)
+                    padres[vecino] = actual  # Establecer el padre
+                    sin_procesar.append(vecino)  # Agregar el vecino a sin_procesar
+
+        return None  # Si no se encuentra una ruta
+
+    def a_star_combinar_estrategias(self, inicio, objetivo, nodo_anterior, celda_a_evitar=None):
+        sin_procesar = []
+        procesados = []
+
+        # Agrega el nodo inicial
+        inicio.g = 0
+        inicio.h = inicio.calcular_distancia(objetivo)
+        sin_procesar.append(inicio)
+
+        # Diccionario para llevar la cuenta de los padres
+        padres = {inicio: None}
+
+        primer_iteracion = True  # Variable para controlar la primera iteración
+
+        while sin_procesar:
+            # Ordenar y obtener el nodo con el costo f más bajo
+            sin_procesar.sort(key=lambda celda: celda.calcular_f(objetivo))
+            actual = sin_procesar.pop(0)
+
+            # Si se alcanza el objetivo, retornar la ruta
+            if actual == objetivo:
+                return self.reconstruir_ruta(padres, actual)
+
+            # Agregar el nodo actual a los procesados
+            procesados.append(actual)
+
+            # Iterar sobre los vecinos
+            for vecino in [actual.arriba, actual.abajo, actual.izquierda, actual.derecha]:
+                # En la primera iteración, evitar el nodo anterior
+                if primer_iteracion and vecino == nodo_anterior:
+                    continue
+
+                # Evitar el vecino si es la celda a evitar en general
+                if vecino == celda_a_evitar:
+                    continue
+
+                # Verificar que el vecino sea válido y no esté en procesados ni en sin_procesar
+                if vecino is not None and vecino.valor != 'pared' and vecino not in procesados:
+                    nuevo_g = actual.g + 1  # Suponiendo un costo uniforme
+
+                    # Actualizar costos si se encuentra un camino más corto
+                    if vecino in sin_procesar:
+                        if nuevo_g < vecino.g:
+                            vecino.g = nuevo_g
+                            vecino.h = vecino.calcular_distancia(objetivo)
+                            padres[vecino] = actual
+                    else:
+                        vecino.g = nuevo_g
+                        vecino.h = vecino.calcular_distancia(objetivo)
+                        padres[vecino] = actual
+                        sin_procesar.append(vecino)
+
+            # Después de la primera iteración, ya no se evita el nodo anterior
+            primer_iteracion = False
+
+        return None  # Si no se encuentra una ruta
+
+
+
+

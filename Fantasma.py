@@ -119,7 +119,7 @@ class Pinky(Fantasma): #(Rosa): Intenta predecir la dirección de Pacman y corta
                 return
 
             # Calcular el camino usando A*
-            camino = self.celda_actual.a_star(self.celda_actual, des)
+            camino = self.celda_actual.a_star_combinar_estrategias(self.celda_actual, des,self.celda_anterior,destino)
 
             if camino is None:
                 # Si no hay camino, usa el vecino más cercano sin recalcular
