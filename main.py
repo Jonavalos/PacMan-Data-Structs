@@ -2,6 +2,7 @@ import os
 from pickle import GLOBAL
 import time
 from Fantasma import *
+import random
 
 import pygame
 import pickle
@@ -11,6 +12,27 @@ from pygame.examples.testsprite import Static
 from Mapa import *
 n=0
 tiempo_liberar = None
+
+#FRUTAS & Multiplicador
+tiempo_multiplicador = None
+multiplicador = False
+tiempo_spawn_fruta = None
+
+#vector y cada cierto tiempo agarra un par del vector y mete una fruta ahi. si toca la fruta, multiplicador on
+#cada 7 segundos multiplicador off aBAJO
+
+
+vector_pares = [(6, 12), (20, 12), (6, 5), (20, 5)]
+
+def escoger_par_aleatorio2(diccionario):
+    # Convierte las claves del diccionario en una lista de pares
+    pares = list(diccionario.keys())
+    # Escoge un par aleatorio
+    return random.choice(pares)
+
+def escoger_par_aleatorio(pares): #pasa vector_pares
+    return random.choice(pares)
+
 # Initialize pygame
 pygame.init()
 
@@ -163,6 +185,11 @@ inky_right = pygame.image.load('PNGs/InkyRight.png')
 clyde_left = pygame.image.load('PNGs/ClydeLeft.png')
 clyde_right = pygame.image.load('PNGs/ClydeRight.png')
 
+#cargar imagen de frutas
+apple_img = pygame.image.load('PNGs/apple.png')
+cherry3D_img = pygame.image.load('PNGs/cherry3D.png')
+
+
 # Posicion inicial de Pac-Man en el mapa (coordenadas de la celda)
 pacman_x = 14  # Columna de la matriz
 pacman_y = 13  # Fila de la matriz
@@ -256,6 +283,8 @@ def inicializar_mapa(mapa):
                 diccionario_celdas_items[(x, y)] = 'punto'
             elif celda.valor == 'fruta':
                 diccionario_celdas_items[(x, y)] = 'fruta'
+                diccionario_celdas_puntos[(x, y)] = 'fruta'
+
             elif celda.valor == 'pildora':
                 diccionario_celdas_items[(x, y)] = 'pildora'
                 diccionario_celdas_puntos[(x, y)] = 'pildora'
@@ -318,6 +347,11 @@ def dibujar_mapa(mapa):
 
                 # Dibujar el círculo
                 pygame.draw.circle(screen, punto_color, (punto_x, punto_y), punto_radio)
+            if mapa[y][x].valor == 'fruta':
+                punto_x = (x * ANCHO_CELDA)  # Centro en X
+                punto_y = (y * ALTO_CELDA)  # Centro en Y
+                screen.blit(cherry3D_img, (punto_x, punto_y))
+
 
 
 def is_victoria(mapa): #Verifica si ya no quedan puntos (si ya ganó). Se va a optimizar mas adelante, por ahora dejar asi.
@@ -409,6 +443,15 @@ def mover_pacman(mapa, pacman_x, pacman_y, direccion, velocidad):
             asustar_fantasmas()
             global tiempo_liberar
             tiempo_liberar = time.time()
+            global tiempo_spawn_fruta
+            tiempo_spawn_fruta = time.time()
+
+        if pos_actual in diccionario_celdas_items and mapa[pacman_y][pacman_x].valor == 'fruta':
+            del diccionario_celdas_items[pos_actual]  # elimina fruta del diccionario de items
+            mapa[pacman_y][pacman_x].valor = 'vacio'
+            multiplicador_on()
+            global tiempo_multiplicador
+            tiempo_multiplicador = time.time()
 
         mapa[pacman_y][pacman_x].valor = 'vacio'
         aumentar_puntos()
@@ -471,6 +514,23 @@ def chase_fantasmas():
         fantasma.modo = 'chase'
         fantasma.camino=[]
     return 0
+
+def multiplicador_off():
+    global multiplicador
+    multiplicador = False
+    print('MULTIPLICADOR OFF')
+
+def multiplicador_on():
+    global multiplicador
+    multiplicador = True
+    print('MULTIPLICADOR ON')
+
+
+def spawn_fruta_random():
+    (x,y) = escoger_par_aleatorio2(diccionario_celdas_items)
+    mapa[y][x].valor = 'fruta'
+    print('SPAWN FRUTA')
+    print(y,x)
 
 
 def is_colision(p_y, p_x, fantasmas):
@@ -586,6 +646,20 @@ while running:
                 tiempo_liberar = None
                 tiempo_transcurrido = None
                 chase_fantasmas()
+
+        if tiempo_multiplicador is not None:
+            tiempo_transcurrido2 = int(time.time() - tiempo_multiplicador)
+            if tiempo_transcurrido2 >= 7:
+                tiempo_multiplicador = None
+                tiempo_transcurrido2 = None
+                multiplicador_off()
+
+        if tiempo_spawn_fruta is not None:
+            tiempo_transcurrido3 = int(time.time() - tiempo_spawn_fruta)
+            if tiempo_transcurrido3 >= 7:
+                tiempo_spawn_fruta = None
+                tiempo_transcurrido3 = None
+                spawn_fruta_random()
 
 
     dibujar_mapa(mapa)
