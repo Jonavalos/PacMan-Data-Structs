@@ -130,6 +130,15 @@ class Celda:
     #                     sin_procesar = sorted(sin_procesar)[:10]  # Mantener solo los 10 mejores
     #
     #     return []  # Si no se encuentra una ruta
+    def getVecino(self, num):
+        vecino = {
+            1: self.izquierda,
+            2: self.derecha,
+            3: self.arriba,
+            4: self.abajo
+        }
+        return vecino[num]
+
 
     def a_star(self, inicio, objetivo):
         sin_procesar = []
@@ -154,10 +163,6 @@ class Celda:
 
             # Agregar el nodo actual a los procesados
             procesados.append(actual)
-
-            # Si la longitud del camino alcanzado es 10 celdas, retornamos el camino
-            if len(procesados) == 10:
-                return self.reconstruir_ruta(padres, actual)  # Límite de 10 celdas
 
             # Iterar sobre los vecinos
             for vecino in [actual.arriba, actual.abajo, actual.izquierda, actual.derecha]:
@@ -196,27 +201,37 @@ class Celda:
             # Agregar el nodo actual a los procesados
             procesados.append(actual)
 
-            # Si la longitud del camino alcanzado es 10 celdas, retornamos el camino
-            if len(procesados) == 10:
-                return self.reconstruir_ruta(padres, actual)  # Límite de 10 celdas
-
             # Iterar sobre los vecinos
             for vecino in [actual.arriba, actual.abajo, actual.izquierda, actual.derecha]:
-                if vecino is not None and vecino.valor != 'pared' and vecino not in procesados and vecino not in sin_procesar:
+                if vecino is not None and vecino.valor != 'pared' and vecino not in procesados:
                     # Verificamos si es la primera iteración y si el vecino es el nodo anterior
                     if primer_iteracion and vecino == nodo_anterior:  # Si el vecino es el nodo anterior, lo saltamos
                         continue
 
                     # Calcular los costos y configurar el padre
-                    vecino.g = actual.g + 1  # Suponiendo un costo uniforme
-                    vecino.h = vecino.calcular_distancia(objetivo)
-                    padres[vecino] = actual  # Establecer el padre
-                    sin_procesar.append(vecino)  # Agregar el vecino a la lista de nodos a procesar
+                    nuevo_g = actual.g + 1  # Suponiendo un costo uniforme
+
+                    # Verificar si el vecino ya está en la lista `sin_procesar`
+                    if vecino in sin_procesar:
+                        # Si el vecino está en la lista y el nuevo costo g es mejor, actualizamos
+                        if nuevo_g < vecino.g:
+                            vecino.g = nuevo_g
+                            # Recalcular `f` y reorganizar la lista de nodos
+                            vecino.h = vecino.calcular_distancia(objetivo)
+                            padres[vecino] = actual
+                    else:
+                        # Si el vecino no está en la lista, lo agregamos
+                        vecino.g = nuevo_g
+                        vecino.h = vecino.calcular_distancia(objetivo)
+                        padres[vecino] = actual
+                        sin_procesar.append(vecino)
 
             # Después de la primera iteración, desactivamos la restricción
             primer_iteracion = False
 
-        return None  # Si no se encuentra un camino de 10 celdas
+        return None
+
+    # Si no se encuentra un camino de 10 celdas
 
     def reconstruir_ruta(self, padres, nodo_actual):
         ruta = []
@@ -243,3 +258,5 @@ class Celda:
 
         # Retornar un vecino válido al azar
         return random.choice(vecinos_validos)
+
+

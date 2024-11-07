@@ -381,7 +381,7 @@ def dibujar_fantasmas(fantasmas):
 
 def moverFantasmas(pacman_y, pacman_x,fantasmas):
     for fantasma in fantasmas:
-        fantasma.decidir_donde_viajar(mapa[pacman_y][pacman_x])
+        fantasma.decidir_donde_viajar(mapa[pacman_y][pacman_x],direccion)
         #TP
         if fantasma.celda_actual.id == (12, 0):
             fantasma.celda_actual = mapa[12][25]
@@ -469,10 +469,10 @@ def mover_pacman(mapa, pacman_x, pacman_y, direccion, velocidad):
 
 
 fantasmas = [
-        Blinky(mapa[10][13],mapa[24][25]),
-        # Pinky(mapa[10][13],mapa[24][1]),
-        # Inky(mapa[10][13],mapa[1][1]),
-        Clyde(mapa[10][13],mapa[1][25])
+        #Blinky(mapa[10][13],mapa[24][25]),
+        Pinky(mapa[10][13],mapa[24][1]),
+        #Inky(mapa[10][13],mapa[1][1]),
+        #Clyde(mapa[10][13],mapa[1][25])
     ]
 
 def liberarFantasmas(fantasmas,fantasmasLiberados):
@@ -586,7 +586,7 @@ while running:
 
         # Mover al PACMAN y actualizar el mapa
         pacman_x, pacman_y = mover_pacman(mapa, pacman_x, pacman_y, direccion, velocidad)
-        if fantasmasLiberados < 2 and n % 30 == 0 and n != 0:
+        if fantasmasLiberados < 1 and n % 30 == 0 and n != 0:
             liberarFantasmas(fantasmas,fantasmasLiberados)
             fantasmasLiberados += 1
 
