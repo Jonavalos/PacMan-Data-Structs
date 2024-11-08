@@ -344,6 +344,7 @@ def inicializar_mapa(mapa, cargar_desde_archivo = False):
                     diccionario_celdas_items[(x, y)] = 'punto'
                 elif celda.valor == 'fruta':
                     diccionario_celdas_items[(x, y)] = 'fruta'
+                    diccionario_celdas_puntos[(x, y)] = 'fruta'
                 elif celda.valor == 'pildora':
                     diccionario_celdas_items[(x, y)] = 'pildora'
                     diccionario_celdas_puntos[(x, y)] = 'pildora'
@@ -405,6 +406,12 @@ def dibujar_mapa(mapa):
 
                 # Dibujar el círculo
                 pygame.draw.circle(screen, punto_color, (punto_x, punto_y), punto_radio)
+            if mapa[y][x].valor == 'fruta':
+                # Calcular la posicion centrada del punto dentro de la celda
+                punto_x = (x * ANCHO_CELDA)
+                punto_y = (y * ALTO_CELDA)
+                # Dibujar la fruta
+                screen.blit(cherry3D_img, (punto_x, punto_y))
 
 def is_victoria(mapa): #Verifica si ya no quedan puntos (si ya ganó). Se va a optimizar mas adelante, por ahora dejar asi.
     # Verificar si quedan celdas con puntos
@@ -590,6 +597,9 @@ def is_colision(p_y, p_x, fantasmas):
             fantasma.liberado = False
             fantasma.modo = 'chase'  # CAMBIAR A scattered
             print("se lo comio")
+            aumentar_puntos()
+            if multiplicador:
+                aumentar_puntos()
             return 1
     return 3
 
