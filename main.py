@@ -88,31 +88,27 @@ def cargar_partida():
                 diccionario_celdas_items = estado_juego.get("diccionario_celdas_items", {})
                 diccionario_celdas_pared = estado_juego.get("diccionario_celdas_pared", {})
                 print("Partida cargada correctamente.")
-                # Imprimir los diccionarios cargados para verificar
-                print(diccionario_celdas_puntos)
-                print(diccionario_celdas_puntos2)
-                print(diccionario_celdas_items)
-                print(diccionario_celdas_pared)
         except Exception as e:
             print("Error al cargar la partida:", e)
     else:
         print("No existe la partida guardada.")
 
 
-#Prueba
+#Funcion para mostrar el menu al iniciar el juego
 def mostrar_menu_opciones():
-    # Muestra un menú para que el usuario elija entre cargar partida o inicializar mapa
+    screen.fill((0, 0, 0))
+    font = pygame.font.Font(None, 40)
     opciones = ["Cargar Partida", "Inicializar Mapa"]
-    print("Seleccione una opción:")
-    for i, opcion in enumerate(opciones):
-        print(f"{i + 1}. {opcion}")
 
-    seleccion = int(input("Ingrese el número de su elección: "))
-    return seleccion
+    for i, texto in enumerate(opciones):
+        color = (255, 255, 255)
+        texto_render = font.render(texto, True, color)
+        screen.blit(texto_render, (MAPA_ANCHO // 2 - 100, MAPA_ALTO // 2 + i * 50))
+    pygame.display.flip()
 
-# Función para mostrar el menú
+# Funcion para mostrar el menu en pausa
 def mostrar_menu():
-    screen.fill((0, 0, 0))  # Pantalla negra
+    screen.fill((0, 0, 0))
     font = pygame.font.Font(None, 40)
     opciones = ["Continuar", "Guardar partida", "Salir"]
     for i, texto in enumerate(opciones):
@@ -122,20 +118,29 @@ def mostrar_menu():
     pygame.display.flip()
 
 
-# Función para manejar el menú
+# Funcion para manejar el menu en pausa del juego
 def manejar_menu():
     global is_paused
     mostrar_menu()
     seleccion = 0
-    font = pygame.font.Font(None, 40)
+    font = pygame.font.Font(None, 60)
+    fondo_pausa = pygame.image.load('PNGs/Pausa.jpeg')
+    opciones = ["Continuar", "Guardar partida", "Salir"]
+
+    factor = 0.8
+    fondo_width = int(fondo_pausa.get_width() * factor)
+    fondo_height = int(fondo_pausa.get_height() * factor)
+    fondo_pausa = pygame.transform.scale(fondo_pausa, (fondo_width, fondo_height))
+    fondo_x = (MAPA_ANCHO - fondo_width) // 2
+    fondo_y = (MAPA_ALTO - fondo_height) // 2
 
     while is_paused:
         for evento in pygame.event.get():
             if evento.type == pygame.KEYDOWN:
                 if evento.key == pygame.K_UP:
-                    seleccion = (seleccion - 1) % 3
+                    seleccion = (seleccion - 1) % len(opciones)
                 elif evento.key == pygame.K_DOWN:
-                    seleccion = (seleccion + 1) % 3
+                    seleccion = (seleccion + 1) % len(opciones)
                 elif evento.key == pygame.K_SPACE:
                     if seleccion == 0:  # Continuar
                         is_paused = False
@@ -145,13 +150,57 @@ def manejar_menu():
                     elif seleccion == 2:  # Salir
                         pygame.quit()
                         exit()
-            screen.fill((0, 0, 0))
-            for i, texto in enumerate(["Continuar", "Guardar partida", "Salir"]):
+            screen.blit(fondo_pausa, (fondo_x, fondo_y))
+            posicion_y_inicial = MAPA_ALTO // 2 - 300
+            for i, texto in enumerate(opciones):
                 color = (255, 0, 0) if i == seleccion else (255, 255, 255)
                 texto_render = font.render(texto, True, color)
-                screen.blit(texto_render, (MAPA_ANCHO // 2 - 100, MAPA_ALTO // 2 + i * 50))
+                text_rect = texto_render.get_rect(center=(MAPA_ANCHO // 2, posicion_y_inicial + i * 60))
+                screen.blit(texto_render, text_rect)
             pygame.display.flip()
 
+#Funcion para manejar el menu del inicio del juego
+def manejar_menu_inicio():
+
+    seleccion = 0
+    font = pygame.font.Font(None, 60)
+    opciones = ["Continuar Partida", "Nueva Partida"]
+    fondo = pygame.image.load('PNGs/Pacman_Y_Tigre.jpeg')
+    factor = 0.8
+    fondo_width = int(fondo.get_width() * factor)
+    fondo_height = int(fondo.get_height() * factor)
+    fondo = pygame.transform.scale(fondo, (fondo_width, fondo_height))
+    fondo_x = (MAPA_ANCHO - fondo_width) // 2
+    fondo_y = (MAPA_ALTO - fondo_height) // 2
+
+    while True:
+        for evento in pygame.event.get():
+            if evento.type == pygame.QUIT:
+                pygame.quit()
+                exit()
+            elif evento.type == pygame.KEYDOWN:
+                if evento.key == pygame.K_UP:
+                    seleccion = (seleccion - 1) % len(opciones)
+                elif evento.key == pygame.K_DOWN:
+                    seleccion = (seleccion + 1) % len(opciones)
+                elif evento.key == pygame.K_SPACE:
+                    if seleccion == 0:
+                        inicializar_mapa(mapa, cargar_desde_archivo=True)
+                        print("Partida cargada.")
+                        return
+                    elif seleccion == 1:
+                        inicializar_mapa(mapa)
+                        print("Mapa inicializado.")
+                        return
+        screen.blit(fondo, (fondo_x, fondo_y))
+        posicion_y_inicial = MAPA_ALTO // 2 - 280
+        for i, texto in enumerate(opciones):
+            color = (255, 0, 0) if i == seleccion else (255, 255, 255)
+            texto_render = font.render(texto, True, color)
+            text_rect = texto_render.get_rect(center=(MAPA_ANCHO // 2, posicion_y_inicial + i * 60))
+            screen.blit(texto_render, text_rect)
+
+        pygame.display.flip()
 
 # Obtener las dimensiones de las imagenes para centrarlas
 
@@ -161,6 +210,7 @@ inicio_x = (MAPA_ANCHO - image_rect.width) // 2  # Posición X
 inicio_y = (MAPA_ALTO - image_rect.height) // 2  # Posición Y
 
 image_rect2 = background_wwcd.get_rect()
+
 # Calcular la posición para centrar la imagen
 wwcd_x = (MAPA_ANCHO - image_rect2.width) // 2  # Posición X
 wwcd_y = (MAPA_ALTO - image_rect2.height) // 2  # Posición Y
@@ -196,7 +246,6 @@ clyde_right = pygame.image.load('PNGs/ClydeRight.png')
 #cargar imagen de frutas
 apple_img = pygame.image.load('PNGs/apple.png')
 cherry3D_img = pygame.image.load('PNGs/cherry3D.png')
-
 
 # Posicion inicial de Pac-Man en el mapa (coordenadas de la celda)
 pacman_x = 14  # Columna de la matriz
@@ -490,20 +539,14 @@ def reiniciarFantasmas(fantasmas):
 
 def inicializar_juego():
 
-    seleccion = mostrar_menu_opciones()
-    if seleccion == 1:
-        inicializar_mapa(mapa, cargar_desde_archivo=True)
-    elif seleccion == 2:
-        inicializar_mapa(mapa)
-    else:
-        print("Selección no válida. Por favor, elija 1 o 2.")
-        return
     mixer.music.load('musica/pacman_beginning.wav')
     mixer.music.play()
     screen.fill((255, 255, 255))  # RGB
     screen.blit(background_inicio, (inicio_x, inicio_y))
     pygame.display.flip()
     pygame.time.wait(4000)
+
+    manejar_menu_inicio()
 
 def asustar_fantasmas():
     for fantasma in fantasmas:
