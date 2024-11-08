@@ -65,31 +65,38 @@ if os.path.exists(save_file):
 
 #guardar el estado del juego
 def guardar_partida():
-    global puntos, nivel, vidas
     print("Guardando partida")
     estado_juego = {
-        "Score": puntos,
-        "nivel": nivel,
-        "vidas": vidas
+        "diccionario_celdas_puntos": diccionario_celdas_puntos,
+        "diccionario_celdas_puntos2": diccionario_celdas_puntos2,
+        "diccionario_celdas_items": diccionario_celdas_items,
+        "diccionario_celdas_pared": diccionario_celdas_pared
     }
     with open(save_file, 'wb') as file:
         pickle.dump(estado_juego, file)
+    print("Partida guardada.")
 
 #Funcion encargada de cargar el estado del juego
 def cargar_partida():
-    global puntos, nivel, vidas
+    global diccionario_celdas_puntos, diccionario_celdas_puntos2, diccionario_celdas_items, diccionario_celdas_pared
     if os.path.exists(save_file):
         try:
             with open(save_file, 'rb') as file:
                 estado_juego = pickle.load(file)
-                puntos = estado_juego.get("Score: ", 0)
-                nivel = estado_juego.get("nivel: ", 0)
-                vidas = estado_juego.get("vidas: ", 10)
-                print("Cargando partida", estado_juego)
+                diccionario_celdas_puntos = estado_juego.get("diccionario_celdas_puntos", {})
+                diccionario_celdas_puntos2 = estado_juego.get("diccionario_celdas_puntos2", {})
+                diccionario_celdas_items = estado_juego.get("diccionario_celdas_items", {})
+                diccionario_celdas_pared = estado_juego.get("diccionario_celdas_pared", {})
+                print("Partida cargada correctamente.")
+                # Imprimir los diccionarios cargados para verificar
+                print(diccionario_celdas_puntos)
+                print(diccionario_celdas_puntos2)
+                print(diccionario_celdas_items)
+                print(diccionario_celdas_pared)
         except Exception as e:
-            print("Error al cargar la partida")
+            print("Error al cargar la partida:", e)
     else:
-        print("No existe la partida")
+        print("No existe la partida guardada.")
 
 
 #Prueba
@@ -260,38 +267,40 @@ import heapq
 
 
 
-def inicializar_mapa(mapa):
+def inicializar_mapa(mapa, cargar_desde_archivo = False):
+
     fila_max = len(mapa) - 1
     col_max = len(mapa[0]) - 1
 
-    for y, fila in enumerate(
-            mapa):  # para no tener que recorrer toda la matriz verificando si hay puntos. Se eliminan conforme va comiendo pacman
-        for x, celda in enumerate(fila):
-            celda.id = (y, x)
-            if celda.valor != 'pared':
-                if y != fila_max and mapa[y + 1][x].valor != 'pared':
-                    celda.abajo = mapa[y + 1][x]
-                if y != 0 and mapa[y - 1][x].valor != 'pared':
-                    celda.arriba = mapa[y - 1][x]
-                if x != col_max and mapa[y][x + 1].valor != 'pared':
-                    celda.derecha = mapa[y][x + 1]
-                if x != 0 and mapa[y][x - 1].valor != 'pared':
-                    celda.izquierda = mapa[y][x - 1]
+    if cargar_desde_archivo:
+        cargar_partida()
+    else:
+        for y, fila in enumerate(
+                mapa):  # para no tener que recorrer toda la matriz verificando si hay puntos. Se eliminan conforme va comiendo pacman
+            for x, celda in enumerate(fila):
+                celda.id = (y, x)
+                if celda.valor != 'pared':
+                    if y != fila_max and mapa[y + 1][x].valor != 'pared':
+                        celda.abajo = mapa[y + 1][x]
+                    if y != 0 and mapa[y - 1][x].valor != 'pared':
+                        celda.arriba = mapa[y - 1][x]
+                    if x != col_max and mapa[y][x + 1].valor != 'pared':
+                        celda.derecha = mapa[y][x + 1]
+                    if x != 0 and mapa[y][x - 1].valor != 'pared':
+                        celda.izquierda = mapa[y][x - 1]
 
-            if celda.valor == 'punto':
-                diccionario_celdas_puntos[(x, y)] = 'punto'
-                diccionario_celdas_puntos2[(x, y)] = 'punto'
-                diccionario_celdas_items[(x, y)] = 'punto'
-            elif celda.valor == 'fruta':
-                diccionario_celdas_items[(x, y)] = 'fruta'
-                diccionario_celdas_puntos[(x, y)] = 'fruta'
-
-            elif celda.valor == 'pildora':
-                diccionario_celdas_items[(x, y)] = 'pildora'
-                diccionario_celdas_puntos[(x, y)] = 'pildora'
-                diccionario_celdas_puntos2[(x, y)] = 'pildora'
-            elif celda.valor == 'pared':
-                diccionario_celdas_pared[(x, y)] = 'pared'
+                if celda.valor == 'punto':
+                    diccionario_celdas_puntos[(x, y)] = 'punto'
+                    diccionario_celdas_puntos2[(x, y)] = 'punto'
+                    diccionario_celdas_items[(x, y)] = 'punto'
+                elif celda.valor == 'fruta':
+                    diccionario_celdas_items[(x, y)] = 'fruta'
+                elif celda.valor == 'pildora':
+                    diccionario_celdas_items[(x, y)] = 'pildora'
+                    diccionario_celdas_puntos[(x, y)] = 'pildora'
+                    diccionario_celdas_puntos2[(x, y)] = 'pildora'
+                elif celda.valor == 'pared':
+                    diccionario_celdas_pared[(x, y)] = 'pared'
 
 def reset_mapa():
     for (x, y) in diccionario_celdas_puntos2.keys():
@@ -314,8 +323,7 @@ def dibujar_mapa(mapa):
                 color = (255, 0, 0)
         pygame.draw.rect(screen, color, pygame.Rect(x * ANCHO_CELDA, y * ALTO_CELDA, ANCHO_CELDA, ALTO_CELDA))
 
-
-    for (x, y) in diccionario_celdas_items.keys(): #Dibujar rastro de olor (quitar en version final)
+    for (x, y) in diccionario_celdas_puntos.keys(): #Dibujar rastro de olor (quitar en version final)
         mapa[y][x].decrementar_olor()
 
 
@@ -348,12 +356,6 @@ def dibujar_mapa(mapa):
 
                 # Dibujar el círculo
                 pygame.draw.circle(screen, punto_color, (punto_x, punto_y), punto_radio)
-            if mapa[y][x].valor == 'fruta':
-                punto_x = (x * ANCHO_CELDA)  # Centro en X
-                punto_y = (y * ALTO_CELDA)  # Centro en Y
-                screen.blit(cherry3D_img, (punto_x, punto_y))
-
-
 
 def is_victoria(mapa): #Verifica si ya no quedan puntos (si ya ganó). Se va a optimizar mas adelante, por ahora dejar asi.
     # Verificar si quedan celdas con puntos
@@ -487,17 +489,15 @@ def reiniciarFantasmas(fantasmas):
 
 
 def inicializar_juego():
-    inicializar_mapa(mapa)
-    cargar_partida()
-    #seleccion = mostrar_menu_opciones()
-    #if seleccion == 1:
-    #    cargar_partida()
-    #elif seleccion == 2:
-    #    mapa = "mapa"  # Asigna el mapa deseado aquí
-    #    inicializar_mapa(mapa)
-    #else:
-    #    print("Selección no válida. Por favor, elija 1 o 2.")
-    #    return
+
+    seleccion = mostrar_menu_opciones()
+    if seleccion == 1:
+        inicializar_mapa(mapa, cargar_desde_archivo=True)
+    elif seleccion == 2:
+        inicializar_mapa(mapa)
+    else:
+        print("Selección no válida. Por favor, elija 1 o 2.")
+        return
     mixer.music.load('musica/pacman_beginning.wav')
     mixer.music.play()
     screen.fill((255, 255, 255))  # RGB
