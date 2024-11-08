@@ -124,7 +124,7 @@ def manejar_menu():
     mostrar_menu()
     seleccion = 0
     font = pygame.font.Font(None, 60)
-    fondo_pausa = pygame.image.load('PNGs/Pausa.jpeg')
+    fondo_pausa = pygame.image.load('PNGs/Pausa.png')
     opciones = ["Continuar", "Guardar partida", "Salir"]
 
     factor = 0.8
@@ -165,7 +165,7 @@ def manejar_menu_inicio():
     seleccion = 0
     font = pygame.font.Font(None, 60)
     opciones = ["Continuar Partida", "Nueva Partida"]
-    fondo = pygame.image.load('PNGs/Pacman_Y_Tigre.jpeg')
+    fondo = pygame.image.load('PNGs/Pacman_Y_Tigre.png')
     factor = 0.8
     fondo_width = int(fondo.get_width() * factor)
     fondo_height = int(fondo.get_height() * factor)
