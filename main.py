@@ -338,6 +338,8 @@ def inicializar_mapa(mapa, cargar_desde_archivo = False):
                     if x != 0 and mapa[y][x - 1].valor != 'pared':
                         celda.izquierda = mapa[y][x - 1]
 
+
+
                 if celda.valor == 'punto':
                     diccionario_celdas_puntos[(x, y)] = 'punto'
                     diccionario_celdas_puntos2[(x, y)] = 'punto'
@@ -439,7 +441,7 @@ def dibujar_fantasmas(fantasmas):
 
 def moverFantasmas(pacman_y, pacman_x,fantasmas):
     for fantasma in fantasmas:
-        fantasma.decidir_donde_viajar(mapa[pacman_y][pacman_x],direccion)
+        fantasma.decidir_donde_viajar(mapa[pacman_y][pacman_x],direccion,mapa,fantasmas[0])
         #TP
         if fantasma.celda_actual.id == (12, 0):
             fantasma.celda_actual = mapa[12][25]
@@ -527,10 +529,10 @@ def mover_pacman(mapa, pacman_x, pacman_y, direccion, velocidad):
 
 
 fantasmas = [
-        #Blinky(mapa[10][13],mapa[24][25]),
+        Blinky(mapa[10][13],mapa[24][25]),
         Pinky(mapa[10][13],mapa[24][1]),
-        #Inky(mapa[10][13],mapa[1][1]),
-        #Clyde(mapa[10][13],mapa[1][25])
+        Inky(mapa[10][13],mapa[1][1]),
+        Clyde(mapa[10][13],mapa[1][25])
     ]
 
 def liberarFantasmas(fantasmas,fantasmasLiberados):
@@ -588,14 +590,15 @@ def spawn_fruta_random():
 
 def is_colision(p_y, p_x, fantasmas):
     for fantasma in fantasmas:
-        if fantasma.celda_actual.id == (p_y, p_x) and fantasma.modo!='frightened': #se lo comen
+        if fantasma.celda_actual.id == (p_y, p_x) and fantasma.modo!='frightened' and fantasma.modo != "eaten": #se lo comen
             reiniciarFantasmas(fantasmas)
             print("se lo comieron")
             return 0
         if fantasma.celda_actual.id == (p_y, p_x) and fantasma.modo == 'frightened': #se los come
-            fantasma.celda_actual = mapa[10][13]
-            fantasma.liberado = False
-            fantasma.modo = 'chase'  # CAMBIAR A scattered
+            # fantasma.celda_actual = mapa[10][13]
+            fantasma.modo = "eaten"
+            # fantasma.liberado = False
+            # fantasma.modo = 'chase'  # CAMBIAR A scattered
             print("se lo comio")
             aumentar_puntos()
             if multiplicador:
@@ -639,7 +642,7 @@ while running:
 
         # Mover al PACMAN y actualizar el mapa
         pacman_x, pacman_y = mover_pacman(mapa, pacman_x, pacman_y, direccion, velocidad)
-        if fantasmasLiberados < 1 and n % 30 == 0 and n != 0:
+        if fantasmasLiberados < 4 and n % 30 == 0 and n != 0:
             liberarFantasmas(fantasmas,fantasmasLiberados)
             fantasmasLiberados += 1
 
