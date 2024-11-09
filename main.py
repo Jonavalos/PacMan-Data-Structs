@@ -453,7 +453,7 @@ def moverFantasmas(pacman_y, pacman_x,fantasmas):
 
 def is_comido(p_y, p_x, fantasmas):
     for fantasma in fantasmas:
-        if fantasma.celda_actual.id == (p_y, p_x) and fantasma.modo != 'frightened':
+        if fantasma.celda_actual.id == (p_y, p_x) and fantasma.modo != 'frightened' and fantasma.modo !=  "eaten":
             print("Comido")
             return True
     return False
@@ -535,14 +535,19 @@ fantasmas = [
         Clyde(mapa[10][13],mapa[1][25])
     ]
 
-def liberarFantasmas(fantasmas,fantasmasLiberados):
-    fantasmas[fantasmasLiberados].celda_actual=mapa[8][13]
+def liberarFantasmas(fantasmas):
+    for fantasma in fantasmas:
+        if not fantasma.liberado:
+            fantasma.celda_actual=mapa[8][13]
+            fantasma.liberado = True
+            return
+
+
 
 def reiniciarFantasmas(fantasmas):
     for fantasma in fantasmas:
         fantasma.celda_actual = mapa[10][13]
         fantasma.liberado = False
-        fantasma.camino = []
     return 0
 
 
@@ -567,7 +572,6 @@ def asustar_fantasmas():
 def chase_fantasmas():
     for fantasma in fantasmas:
         fantasma.modo = 'chase'
-        fantasma.camino=[]
     return 0
 
 def multiplicador_off():
@@ -595,10 +599,7 @@ def is_colision(p_y, p_x, fantasmas):
             print("se lo comieron")
             return 0
         if fantasma.celda_actual.id == (p_y, p_x) and fantasma.modo == 'frightened': #se los come
-            # fantasma.celda_actual = mapa[10][13]
             fantasma.modo = "eaten"
-            # fantasma.liberado = False
-            # fantasma.modo = 'chase'  # CAMBIAR A scattered
             print("se lo comio")
             aumentar_puntos()
             if multiplicador:
@@ -642,11 +643,11 @@ while running:
 
         # Mover al PACMAN y actualizar el mapa
         pacman_x, pacman_y = mover_pacman(mapa, pacman_x, pacman_y, direccion, velocidad)
-        if fantasmasLiberados < 4 and n % 30 == 0 and n != 0:
-            liberarFantasmas(fantasmas,fantasmasLiberados)
-            fantasmasLiberados += 1
+        if n % 30 == 0 and n != 0:  #Aqui en vez de n podria ser una variable que cambie dependiendo del nivel
+           liberarFantasmas(fantasmas)
 
-        #-----------------VARIFICAR SI SE COMIERON AL PACMAN----------------
+
+        #-----------------VERIFICAR SI SE COMIERON AL PACMAN----------------
         if is_comido(pacman_y, pacman_x, fantasmas):
             pacman_x, pacman_y = mover_pacman(mapa, 14, 13, direccion, velocidad)
             fantasmasLiberados=reiniciarFantasmas(fantasmas)
@@ -668,6 +669,7 @@ while running:
         else:
             if is_colision(pacman_y, pacman_x, fantasmas)==1: #se come a alguno
                 fantasmasLiberados-=1
+                tiempo_liberar = time.time()
 
 
         #TELEPORT (ENDER PEARLLL)

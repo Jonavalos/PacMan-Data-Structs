@@ -16,6 +16,7 @@ class Fantasma:
         self.imagen_Actual = None
         self.esquina = esquina
         self.spawn = actual
+        self.liberado = False
 
     def get_celda_actual(self):
         if self.modo == "eaten":    #Use traductor para poner eso jaja, supongamos que es "comido", si esta mal escrito me avisan o lo cambian jaja
@@ -91,12 +92,13 @@ class Blinky(Fantasma):     #Esquina abajo derecha
                         self.modo = 'chase'
 
         if self.modo == "eaten":
-            celda = mapa[self.spawn.id[0] + 2][self.spawn.id[1]]
-            if self.celda_actual.id == celda.id:
+            celda = mapa[self.spawn.id[0] - 2][self.spawn.id[1]]
+            if self.celda_actual == celda:
                 nueva_celda = self.spawn
                 self.celda_anterior = self.celda_actual
                 self.celda_actual = nueva_celda
                 self.modo = "scatter"
+                self.liberado = False
                 return
             camino = self.celda_actual.a_star(self.celda_actual, celda)
             if camino is None:
@@ -190,12 +192,13 @@ class Pinky(Fantasma): #(Rosa): Intenta predecir la dirección de Pacman y corta
 
              # Comido
         if self.modo == "eaten":
-            celda = mapa[self.spawn.id[0] + 2][self.spawn.id[1]]
-            if self.celda_actual.id == celda.id:
+            celda = mapa[self.spawn.id[0] - 2][self.spawn.id[1]]
+            if self.celda_actual == celda:
                 nueva_celda = self.spawn
                 self.celda_anterior = self.celda_actual
                 self.celda_actual = nueva_celda
                 self.modo = "scatter"
+                self.liberado = False
                 return
             camino = self.celda_actual.a_star(self.celda_actual, celda)
             if camino is None:
@@ -229,11 +232,6 @@ class Inky(Fantasma):   #(Cian): Utiliza tanto la posición de Pacman como la de
 
     def decidir_donde_viajar(self,destino,direccion=0,mapa=None,blinky = None):
         if self.modo == 'chase':
-            if self.celda_actual.calcular_distancia(destino) == 3:
-                nueva_celda = self.celda_actual.retornar_vecino_con_menor_distancia(destino, self.celda_anterior)
-                self.celda_anterior = self.celda_actual
-                self.celda_actual = nueva_celda
-                return
             fila_max = len(mapa) - 2
             col_max = len(mapa[0]) - 2
             vec = self.calculo_de_celda(destino,direccion,blinky)
@@ -288,16 +286,17 @@ class Inky(Fantasma):   #(Cian): Utiliza tanto la posición de Pacman como la de
 
             # Comido
         if self.modo == "eaten":
-            celda = mapa[self.spawn.id[0] + 2][self.spawn.id[1]]
-            if self.celda_actual.id == celda.id:
+            celda = mapa[self.spawn.id[0] - 2][self.spawn.id[1]]
+            if self.celda_actual == celda:
                 nueva_celda = self.spawn
                 self.celda_anterior = self.celda_actual
                 self.celda_actual = nueva_celda
                 self.modo = "scatter"
+                self.liberado = False
                 return
             camino = self.celda_actual.a_star(self.celda_actual, celda)
             if camino is None:
-                        # Si no hay camino se mueve a la casilla mas cerca de pacman
+                # Si no hay camino se mueve a la casilla mas cerca de pacman
                 nueva_celda = self.celda_actual.retornar_vecino_con_menor_distancia(celda, self.celda_anterior)
                 self.celda_anterior = self.celda_actual
                 self.celda_actual = nueva_celda
@@ -395,12 +394,13 @@ class Clyde(Fantasma):  # (Naranja): Se comporta de manera errática, a veces pe
 
         #Comido
         if self.modo == "eaten":
-            celda = mapa[self.spawn.id[0]+2][self.spawn.id[1]]
+            celda = mapa[self.spawn.id[0] - 2][self.spawn.id[1]]
             if self.celda_actual == celda:
                 nueva_celda = self.spawn
                 self.celda_anterior = self.celda_actual
                 self.celda_actual = nueva_celda
                 self.modo = "scatter"
+                self.liberado = False
                 return
             camino = self.celda_actual.a_star(self.celda_actual, celda)
             if camino is None:
