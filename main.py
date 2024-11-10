@@ -596,9 +596,8 @@ def inicializar_juego():
 
 def asustar_fantasmas():
     for fantasma in fantasmas:
-        fantasma.modo = 'frightened'
-        fantasma.camino=[]
-
+        if fantasma.modo != "eaten":
+            fantasma.modo = 'frightened'
     return 0
 
 def chase_fantasmas():
