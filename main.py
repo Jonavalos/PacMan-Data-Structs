@@ -55,6 +55,7 @@ fuente_vidas_puntos = pygame.font.Font(None, 30) #representa puntos o vida como 
 corazon_img = pygame.image.load('PNGs/corazon.png')
 gameOver_img = pygame.image.load('PNGs/gameOver2.png')
 fantasmasLiberados = 0
+continuar_partida = False
 estado_juego = {"Score: ": puntos, "nivel: ": nivel, "vidas: ": vidas}
 save_file = "savegame.pkl"
 
@@ -70,7 +71,9 @@ def guardar_partida():
         "diccionario_celdas_puntos": diccionario_celdas_puntos,
         "diccionario_celdas_puntos2": diccionario_celdas_puntos2,
         "diccionario_celdas_items": diccionario_celdas_items,
-        "diccionario_celdas_pared": diccionario_celdas_pared
+        "diccionario_celdas_pared": diccionario_celdas_pared,
+        "pacman_x": pacman_x,
+        "pacman_y": pacman_y
     }
     with open(save_file, 'wb') as file:
         pickle.dump(estado_juego, file)
@@ -78,7 +81,7 @@ def guardar_partida():
 
 #Funcion encargada de cargar el estado del juego
 def cargar_partida():
-    global diccionario_celdas_puntos, diccionario_celdas_puntos2, diccionario_celdas_items, diccionario_celdas_pared
+    global diccionario_celdas_puntos, diccionario_celdas_puntos2, diccionario_celdas_items, diccionario_celdas_pared, posicion_guardada_x, posicion_guardada_y
     if os.path.exists(save_file):
         try:
             with open(save_file, 'rb') as file:
@@ -87,6 +90,8 @@ def cargar_partida():
                 diccionario_celdas_puntos2 = estado_juego.get("diccionario_celdas_puntos2", {})
                 diccionario_celdas_items = estado_juego.get("diccionario_celdas_items", {})
                 diccionario_celdas_pared = estado_juego.get("diccionario_celdas_pared", {})
+                posicion_guardada_x = estado_juego.get('pacman_x')
+                posicion_guardada_y = estado_juego.get('pacman_y')
                 print("Partida cargada correctamente.")
         except Exception as e:
             print("Error al cargar la partida:", e)
@@ -123,7 +128,7 @@ def manejar_menu():
     global is_paused
     mostrar_menu()
     seleccion = 0
-    font = pygame.font.Font(None, 60)
+    font = pygame.font.Font("fonts\Silkscreen-Bold.ttf", 40)
     fondo_pausa = pygame.image.load('PNGs/Pausa.png')
     opciones = ["Continuar", "Guardar partida", "Salir"]
 
@@ -161,9 +166,9 @@ def manejar_menu():
 
 #Funcion para manejar el menu del inicio del juego
 def manejar_menu_inicio():
-
+    global continuar_partida
     seleccion = 0
-    font = pygame.font.Font(None, 60)
+    font = pygame.font.Font("fonts\Silkscreen-Bold.ttf", 45)
     opciones = ["Continuar Partida", "Nueva Partida"]
     fondo = pygame.image.load('PNGs/Pacman_Y_Tigre.png')
     factor = 0.8
@@ -185,7 +190,9 @@ def manejar_menu_inicio():
                     seleccion = (seleccion + 1) % len(opciones)
                 elif evento.key == pygame.K_SPACE:
                     if seleccion == 0:
+                        continuar_partida = True
                         inicializar_mapa(mapa, cargar_desde_archivo=True)
+                        inicializar_posicion_pacman()
                         print("Partida cargada.")
                         return
                     elif seleccion == 1:
@@ -247,9 +254,18 @@ clyde_right = pygame.image.load('PNGs/ClydeRight.png')
 apple_img = pygame.image.load('PNGs/apple.png')
 cherry3D_img = pygame.image.load('PNGs/cherry3D.png')
 
-# Posicion inicial de Pac-Man en el mapa (coordenadas de la celda)
-pacman_x = 14  # Columna de la matriz
-pacman_y = 13  # Fila de la matriz
+# Posicion de Pac-Man en el mapa (coordenadas de la celda)
+def inicializar_posicion_pacman():
+    global pacman_x, pacman_y, continuar_partida, posicion_guardada_x, posicion_guardada_y
+    if continuar_partida:
+        pacman_x = posicion_guardada_x
+        pacman_y = posicion_guardada_y
+    else:
+        pacman_x = 14  # Columna de la matriz
+        pacman_y = 13  # Fila de la matriz
+
+inicializar_posicion_pacman()
+
 # Velocidad de movimiento (en celdas)
 velocidad = 1
 # Dirección: 1Left 2Right 3Up 4Down
