@@ -56,6 +56,8 @@ corazon_img = pygame.image.load('PNGs/corazon.png')
 gameOver_img = pygame.image.load('PNGs/gameOver2.png')
 fantasmasLiberados = 0
 continuar_partida = False
+fantasma_celda_actual_X = 0
+fantasma_celda_actual_Y = 0
 estado_juego = {"Score: ": puntos, "nivel: ": nivel, "vidas: ": vidas}
 save_file = "savegame.pkl"
 
@@ -73,7 +75,9 @@ def guardar_partida():
         "diccionario_celdas_items": diccionario_celdas_items,
         "diccionario_celdas_pared": diccionario_celdas_pared,
         "pacman_x": pacman_x,
-        "pacman_y": pacman_y
+        "pacman_y": pacman_y,
+        "fantasma_celda_actual_X": fantasmas[0].celda_actual.id[1],
+        "fantasma_celda_actual_Y": fantasmas[0].celda_actual.id[0]
     }
     with open(save_file, 'wb') as file:
         pickle.dump(estado_juego, file)
@@ -81,7 +85,7 @@ def guardar_partida():
 
 #Funcion encargada de cargar el estado del juego
 def cargar_partida():
-    global diccionario_celdas_puntos, diccionario_celdas_puntos2, diccionario_celdas_items, diccionario_celdas_pared, posicion_guardada_x, posicion_guardada_y
+    global diccionario_celdas_puntos, diccionario_celdas_puntos2, diccionario_celdas_items, diccionario_celdas_pared, posicion_guardada_x, posicion_guardada_y, fantasma_celda_actual_X, fantasma_celda_actual_Y
     if os.path.exists(save_file):
         try:
             with open(save_file, 'rb') as file:
@@ -92,6 +96,11 @@ def cargar_partida():
                 diccionario_celdas_pared = estado_juego.get("diccionario_celdas_pared", {})
                 posicion_guardada_x = estado_juego.get('pacman_x')
                 posicion_guardada_y = estado_juego.get('pacman_y')
+                fantasma_celda_actual_X = estado_juego.get("fantasma_celda_actual_X")
+                fantasma_celda_actual_Y = estado_juego.get("fantasma_celda_actual_Y")
+                if fantasmas:
+                    fantasma_celda = mapa[fantasma_celda_actual_Y][fantasma_celda_actual_X]
+                    fantasmas[0].celda_actual = fantasma_celda
                 print("Partida cargada correctamente.")
         except Exception as e:
             print("Error al cargar la partida:", e)
@@ -193,6 +202,7 @@ def manejar_menu_inicio():
                         continuar_partida = True
                         inicializar_mapa(mapa, cargar_desde_archivo=True)
                         inicializar_posicion_pacman()
+                        cargar_fantasmas()
                         print("Partida cargada.")
                         return
                     elif seleccion == 1:
@@ -550,6 +560,12 @@ fantasmas = [
         Inky(mapa[10][13],mapa[1][1]),
         Clyde(mapa[10][13],mapa[1][25])
     ]
+
+def cargar_fantasmas():
+    if fantasma_celda_actual_X != 0 and fantasma_celda_actual_Y != 0 :
+        fantasmas[0].celda_actual = mapa[fantasma_celda_actual_Y][fantasma_celda_actual_X]
+        print(fantasma_celda_actual_Y)
+        print(fantasma_celda_actual_X)
 
 def liberarFantasmas(fantasmas):
     for fantasma in fantasmas:
