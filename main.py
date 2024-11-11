@@ -50,14 +50,21 @@ is_paused = False
 puntos=0
 nivel = 1
 velocidad_juego=200
-vidas = 30
+vidas = 5
 fuente_vidas_puntos = pygame.font.Font(None, 30) #representa puntos o vida como texto
 corazon_img = pygame.image.load('PNGs/corazon.png')
 gameOver_img = pygame.image.load('PNGs/gameOver2.png')
+
 fantasmasLiberados = 0
 continuar_partida = False
-fantasma_celda_actual_X = 0
-fantasma_celda_actual_Y = 0
+Blinky_celda_actual_X = 0
+Blinky_celda_actual_Y = 0
+Pinky_celda_actual_X = 0
+Pinky_celda_actual_Y = 0
+Inky_celda_actual_X = 0
+Inky_celda_actual_Y = 0
+Clyde_celda_actual_X = 0
+Clyde_celda_actual_Y = 0
 estado_juego = {"Score: ": puntos, "nivel: ": nivel, "vidas: ": vidas}
 save_file = "savegame.pkl"
 
@@ -74,10 +81,22 @@ def guardar_partida():
         "diccionario_celdas_puntos2": diccionario_celdas_puntos2,
         "diccionario_celdas_items": diccionario_celdas_items,
         "diccionario_celdas_pared": diccionario_celdas_pared,
+        "puntos": puntos,
+        "vidas": vidas,
         "pacman_x": pacman_x,
         "pacman_y": pacman_y,
-        "fantasma_celda_actual_X": fantasmas[0].celda_actual.id[1],
-        "fantasma_celda_actual_Y": fantasmas[0].celda_actual.id[0]
+        "Blinky_celda_actual_X": fantasmas[0].celda_actual.id[1],
+        "Blinky_celda_actual_Y": fantasmas[0].celda_actual.id[0],
+        "Blinky_modo": fantasmas[0].modo,
+        "Pinky_celda_actual_X": fantasmas[1].celda_actual.id[1],
+        "Pinky_celda_actual_Y": fantasmas[1].celda_actual.id[0],
+        "Pinky_modo": fantasmas[1].modo,
+        "Inky_celda_actual_X": fantasmas[2].celda_actual.id[1],
+        "Inky_celda_actual_Y": fantasmas[2].celda_actual.id[0],
+        "Inky_modo": fantasmas[2].modo,
+        "Clyde_celda_actual_X": fantasmas[3].celda_actual.id[1],
+        "Clyde_celda_actual_Y": fantasmas[3].celda_actual.id[0],
+        "Clyde_modo": fantasmas[3].modo
     }
     with open(save_file, 'wb') as file:
         pickle.dump(estado_juego, file)
@@ -85,7 +104,8 @@ def guardar_partida():
 
 #Funcion encargada de cargar el estado del juego
 def cargar_partida():
-    global diccionario_celdas_puntos, diccionario_celdas_puntos2, diccionario_celdas_items, diccionario_celdas_pared, posicion_guardada_x, posicion_guardada_y, fantasma_celda_actual_X, fantasma_celda_actual_Y
+    global diccionario_celdas_puntos, diccionario_celdas_puntos2, diccionario_celdas_items, diccionario_celdas_pared, puntos, vidas, posicion_guardada_x, posicion_guardada_y
+    global Blinky_celda_actual_X, Blinky_celda_actual_Y, Pinky_celda_actual_X,Pinky_celda_actual_Y,Inky_celda_actual_X,Inky_celda_actual_Y,Clyde_celda_actual_X,Clyde_celda_actual_Y
     if os.path.exists(save_file):
         try:
             with open(save_file, 'rb') as file:
@@ -94,12 +114,24 @@ def cargar_partida():
                 diccionario_celdas_puntos2 = estado_juego.get("diccionario_celdas_puntos2", {})
                 diccionario_celdas_items = estado_juego.get("diccionario_celdas_items", {})
                 diccionario_celdas_pared = estado_juego.get("diccionario_celdas_pared", {})
+                puntos = estado_juego.get("puntos",0)
+                vidas = estado_juego.get("vidas",5)
                 posicion_guardada_x = estado_juego.get('pacman_x')
                 posicion_guardada_y = estado_juego.get('pacman_y')
-                fantasma_celda_actual_X = estado_juego.get("fantasma_celda_actual_X")
-                fantasma_celda_actual_Y = estado_juego.get("fantasma_celda_actual_Y")
+                Blinky_celda_actual_X = estado_juego.get("Blinky_celda_actual_X", 13)
+                Blinky_celda_actual_Y = estado_juego.get("Blinky_celda_actual_Y", 10)
+                fantasmas[0].modo = estado_juego.get("Blinky_modo", 'chase')
+                Pinky_celda_actual_X = estado_juego.get("Pinky_celda_actual_X", 1)
+                Pinky_celda_actual_Y = estado_juego.get("Pinky_celda_actual_Y", 24)
+                fantasmas[1].modo = estado_juego.get("Pinky_modo", 'chase')
+                Inky_celda_actual_X = estado_juego.get("Inky_celda_actual_X", 1)
+                Inky_celda_actual_Y = estado_juego.get("Inky_celda_actual_Y", 1)
+                fantasmas[2].modo = estado_juego.get("Inky_modo", 'chase')
+                Clyde_celda_actual_X = estado_juego.get("Clyde_celda_actual_X", 25)
+                Clyde_celda_actual_Y = estado_juego.get("Clyde_celda_actual_Y", 1)
+                fantasmas[3].modo = estado_juego.get("Clyde_modo", 'chase')
                 if fantasmas:
-                    fantasma_celda = mapa[fantasma_celda_actual_Y][fantasma_celda_actual_X]
+                    fantasma_celda = mapa[Blinky_celda_actual_Y][Blinky_celda_actual_X]
                     fantasmas[0].celda_actual = fantasma_celda
                 print("Partida cargada correctamente.")
         except Exception as e:
@@ -562,10 +594,14 @@ fantasmas = [
     ]
 
 def cargar_fantasmas():
-    if fantasma_celda_actual_X != 0 and fantasma_celda_actual_Y != 0 :
-        fantasmas[0].celda_actual = mapa[fantasma_celda_actual_Y][fantasma_celda_actual_X]
-        print(fantasma_celda_actual_Y)
-        print(fantasma_celda_actual_X)
+    if Blinky_celda_actual_X != 0 and Blinky_celda_actual_Y != 0:
+        fantasmas[0].celda_actual = mapa[Blinky_celda_actual_Y][Blinky_celda_actual_X]
+    if Pinky_celda_actual_X != 0 and Pinky_celda_actual_Y != 0:
+        fantasmas[1].celda_actual = mapa[Pinky_celda_actual_Y][Pinky_celda_actual_X]
+    if Inky_celda_actual_X != 0 and Inky_celda_actual_Y != 0:
+        fantasmas[2].celda_actual = mapa[Inky_celda_actual_Y][Inky_celda_actual_X]
+    if Clyde_celda_actual_X != 0 and Clyde_celda_actual_Y != 0:
+        fantasmas[3].celda_actual = mapa[Clyde_celda_actual_Y][Clyde_celda_actual_X]
 
 def liberarFantasmas(fantasmas):
     for fantasma in fantasmas:
