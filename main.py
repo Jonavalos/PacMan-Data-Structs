@@ -50,11 +50,11 @@ is_paused = False
 puntos=0
 nivel = 1
 velocidad_juego=200
-vidas = 5
+vidas = 10
 fuente_vidas_puntos = pygame.font.Font(None, 30) #representa puntos o vida como texto
 corazon_img = pygame.image.load('PNGs/corazon.png')
 gameOver_img = pygame.image.load('PNGs/gameOver2.png')
-
+nivel_completado = False
 fantasmasLiberados = 0
 continuar_partida = False
 Blinky_celda_actual_X = 0
@@ -422,6 +422,7 @@ def inicializar_mapa(mapa, cargar_desde_archivo = False):
                 elif celda.valor == 'fruta':
                     diccionario_celdas_items[(x, y)] = 'fruta'
                     diccionario_celdas_puntos[(x, y)] = 'fruta'
+                    diccionario_celdas_puntos2[(x, y)] = 'pildora'
                 elif celda.valor == 'pildora':
                     diccionario_celdas_items[(x, y)] = 'pildora'
                     diccionario_celdas_puntos[(x, y)] = 'pildora'
@@ -430,8 +431,17 @@ def inicializar_mapa(mapa, cargar_desde_archivo = False):
                     diccionario_celdas_pared[(x, y)] = 'pared'
 
 def reset_mapa():
-    for (x, y) in diccionario_celdas_puntos2.keys():
-        mapa[y][x].valor = 'punto'
+    global diccionario_celdas_items
+    diccionario_celdas_items=diccionario_celdas_puntos2.copy()
+    for (x, y) in diccionario_celdas_puntos2:
+        if diccionario_celdas_puntos2[(x,y)] == 'pildora':
+            diccionario_celdas_puntos[(x, y)] = 'pildora'
+            diccionario_celdas_items[(x, y)] = 'pildora'
+            mapa[y][x].valor = 'pildora'
+        else:
+            if diccionario_celdas_puntos2[(x,y)] == 'punto':
+                diccionario_celdas_puntos[(x, y)] = 'punto'
+                #mapa[y][x].valor = 'punto'
 
 
 # Dibujar el mapa en pantalla
@@ -549,6 +559,14 @@ def victoria():
     pygame.display.flip()
     pygame.time.wait(2000)
 
+def subir_nivel():
+    screen.fill((255, 255, 255))  # RGB
+    screen.blit(background_inicio, (inicio_x, inicio_y))
+    pygame.display.flip()
+    pygame.time.wait(1000)
+    reset_mapa()
+
+
 # Reducir olor de todas las celdas conforme camina PACMAN
 def reducir_olor(mapa):
     for (x,y) in diccionario_celdas_items.keys():
@@ -575,6 +593,7 @@ def mover_pacman(mapa, pacman_x, pacman_y, direccion, velocidad):
 
         if pos_actual in diccionario_celdas_items and mapa[pacman_y][pacman_x].valor == 'pildora':
             del diccionario_celdas_items[pos_actual]  # elimina pildoras del diccionario de items
+            diccionario_celdas_puntos2[pos_actual] = 'pildora'
             mapa[pacman_y][pacman_x].valor = 'vacio'
             asustar_fantasmas()
             global tiempo_liberar
@@ -584,6 +603,7 @@ def mover_pacman(mapa, pacman_x, pacman_y, direccion, velocidad):
 
         if pos_actual in diccionario_celdas_items and mapa[pacman_y][pacman_x].valor == 'fruta':
             del diccionario_celdas_items[pos_actual]  # elimina fruta del diccionario de items
+            diccionario_celdas_puntos2[pos_actual] = 'punto'
             mapa[pacman_y][pacman_x].valor = 'vacio'
             multiplicador_on()
             global tiempo_multiplicador
@@ -815,25 +835,50 @@ while running:
     n+=1    #cantidad de iteraciones
     #print(mapa[pacman_y][pacman_x].id, mapa[pacman_y-1][pacman_x-1].olor, mapa[pacman_y][pacman_x].olor, n, pacman_x, pacman_y, nivel)
     #creo que mapa[pacman_y-1][pacman_x-1].olor, es un poco ilogico porque al ser y-1 x-1, estaria en diagonal de Pacman
+
     if is_victoria(mapa):
-        if nivel == 1:
-            nivel+=1
-            reset_mapa()
-            time_delay = 160
-            diccionario_celdas_puntos = diccionario_celdas_puntos2
+        if not nivel_completado:  # Solo sube de nivel si no ha sido completado
+            if nivel == 1:
+                print (nivel)
+                nivel += 1
+                diccionario_celdas_puntos = diccionario_celdas_items.copy()
+                subir_nivel()
+                time_delay = 160
 
-        elif nivel == 2:
-            nivel += 1
-            reset_mapa()
-            time_delay = 140
-            diccionario_celdas_puntos = diccionario_celdas_puntos2
+                nivel_completado = True  # Marcar como completado
 
-        elif nivel==3:
-            victoria()
-            running = False
+            elif nivel == 2:
+                print(nivel)
+                nivel += 1
+                diccionario_celdas_puntos = diccionario_celdas_items.copy()
+                subir_nivel()
+                time_delay = 140
 
+                nivel_completado = True
 
-    if vidas==0:
+            elif nivel == 3:
+                print(nivel)
+                nivel += 1
+                diccionario_celdas_puntos = diccionario_celdas_items.copy()
+                subir_nivel()
+                time_delay = 100
+
+                nivel_completado = True
+
+            elif nivel == 4:
+                print(nivel)
+                victoria()
+                running = False
+        else:
+            # Si nivel ya fue completado, no hace nada hasta el siguiente nivel
+            print(nivel)
+            pass
+
+        # Restablece nivel_completado cuando inicies un nuevo nivel
+    if not is_victoria(mapa):
+        nivel_completado = False  # Para permitir avanzar en el siguiente nivel
+
+    if vidas == 0:
         game_over()
 
     #texto_vidas = fuente_vidas_puntos.render(f'Vidas: {vidas}', True, (255, 255, 255))
