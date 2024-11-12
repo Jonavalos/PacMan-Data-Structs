@@ -441,7 +441,7 @@ def reset_mapa():
         else:
             if diccionario_celdas_puntos2[(x,y)] == 'punto':
                 diccionario_celdas_puntos[(x, y)] = 'punto'
-                #mapa[y][x].valor = 'punto'
+                mapa[y][x].valor = 'punto'
 
 
 # Dibujar el mapa en pantalla
@@ -858,17 +858,9 @@ while running:
 
             elif nivel == 3:
                 print(nivel)
-                nivel += 1
-                diccionario_celdas_puntos = diccionario_celdas_items.copy()
-                subir_nivel()
-                time_delay = 100
-
-                nivel_completado = True
-
-            elif nivel == 4:
-                print(nivel)
                 victoria()
                 running = False
+
         else:
             # Si nivel ya fue completado, no hace nada hasta el siguiente nivel
             print(nivel)
