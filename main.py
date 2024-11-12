@@ -147,6 +147,10 @@ def cargar_partida():
                 for num in v:
                     fantasmas[num].modo = 'chase'
 
+                for (x,y) in diccionario_celdas_puntos:
+                    if diccionario_celdas_puntos[(x,y)] == 'fruta':
+                        mapa[y][x].valor = 'fruta'
+
                 if fantasmas:
                     fantasma_celda = mapa[Blinky_celda_actual_Y][Blinky_celda_actual_X]
                     fantasmas[0].celda_actual = fantasma_celda
@@ -452,18 +456,9 @@ def dibujar_mapa(mapa):
             color = (23, 56, 110)  # Azul para pared
         else:
             color = (0, 0, 0)
-            if mapa[y][x].olor >= 1:
-                color = (214, 90, 104)
-            if 10 < mapa[y][x].olor < 20:
-                color = (255, 46, 70)
-            if mapa[y][x].olor >= 20:
-                color = (255, 0, 0)
         pygame.draw.rect(screen, color, pygame.Rect(x * ANCHO_CELDA, y * ALTO_CELDA, ANCHO_CELDA, ALTO_CELDA))
 
     for (x, y) in diccionario_celdas_puntos.keys(): #Dibujar rastro de olor (quitar en version final)
-        mapa[y][x].decrementar_olor()
-
-
         # Comprobar si la celda es 'vacio' y no dibujar nada
         if mapa[y][x].valor == 'vacio':
             continue  # Saltar al siguiente ciclo si la celda es 'vacio'
@@ -692,6 +687,9 @@ def multiplicador_on():
 def spawn_fruta_random():
     (x,y) = escoger_par_aleatorio2(diccionario_celdas_puntos) #ponerlo con el de puntos actuales o modificar abajo
     if diccionario_celdas_puntos.items():
+        diccionario_celdas_puntos[(x,y)] = 'fruta'
+        diccionario_celdas_puntos2[(x,y)] = 'fruta'
+        diccionario_celdas_items[(x,y)] = 'fruta'
         mapa[y][x].valor = 'fruta'
         print('SPAWN FRUTA')
         print(y,x)
