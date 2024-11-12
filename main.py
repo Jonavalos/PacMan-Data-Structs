@@ -839,25 +839,32 @@ while running:
     if is_victoria(mapa):
         if not nivel_completado:  # Solo sube de nivel si no ha sido completado
             if nivel == 1:
-                print (nivel)
                 nivel += 1
+                print ('nivel')
+                print (nivel)
                 diccionario_celdas_puntos = diccionario_celdas_items.copy()
+                reiniciarFantasmas(fantasmas)
+                pacman_x, pacman_y = mover_pacman(mapa, 14, 13, direccion, velocidad)
                 subir_nivel()
                 time_delay = 160
 
                 nivel_completado = True  # Marcar como completado
 
             elif nivel == 2:
-                print(nivel)
                 nivel += 1
+                print(nivel)
+                print('nivel')
                 diccionario_celdas_puntos = diccionario_celdas_items.copy()
+                reiniciarFantasmas(fantasmas)
+                pacman_x, pacman_y = mover_pacman(mapa, 14, 13, direccion, velocidad)
                 subir_nivel()
-                time_delay = 140
+                time_delay = 120
 
                 nivel_completado = True
 
             elif nivel == 3:
                 print(nivel)
+                print('nivel')
                 victoria()
                 running = False
 
