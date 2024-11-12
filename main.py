@@ -671,9 +671,10 @@ def multiplicador_on():
 
 def spawn_fruta_random():
     (x,y) = escoger_par_aleatorio2(diccionario_celdas_puntos) #ponerlo con el de puntos actuales o modificar abajo
-    mapa[y][x].valor = 'fruta'
-    print('SPAWN FRUTA')
-    print(y,x)
+    if diccionario_celdas_puntos.items():
+        mapa[y][x].valor = 'fruta'
+        print('SPAWN FRUTA')
+        print(y,x)
 
 
 def is_colision(p_y, p_x, fantasmas):
