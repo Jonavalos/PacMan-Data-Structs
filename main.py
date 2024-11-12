@@ -18,13 +18,6 @@ tiempo_multiplicador = None
 multiplicador = False
 tiempo_spawn_fruta = None
 
-#vector y cada cierto tiempo agarra un par del vector y mete una fruta ahi. si toca la fruta, multiplicador on
-#cada 7 segundos multiplicador off aBAJO
-
-
-#CUANDO PONE LA FRUTA EN UN LUGAR DONDE YA NO HAY PUNTO, NO SE LA COME. USAR EL OTRO DICCIONARIO QUE NO SE MODIFICA
-
-
 def escoger_par_aleatorio2(diccionario):
     # Convierte las claves del diccionario en una lista de pares
     pares = list(diccionario.keys())
@@ -40,10 +33,11 @@ pygame.init()
 # Create screen
 screen = pygame.display.set_mode((MAPA_ANCHO, MAPA_ALTO))
 
-# Background
+# Imagenes
 background = pygame.image.load('PNGs/background.png')
 background_inicio = pygame.image.load('PNGs/background_inicio.png')
 background_wwcd = pygame.image.load('PNGs/wwcd2.png')
+tigre_feliz = pygame.image.load('PNGs/tigreFeliz.png')
 
 #Variables para controlar el estado del juego
 is_paused = False
@@ -285,6 +279,12 @@ image_rect2 = background_wwcd.get_rect()
 wwcd_x = (MAPA_ANCHO - image_rect2.width) // 2  # Posición X
 wwcd_y = (MAPA_ALTO - image_rect2.height) // 2  # Posición Y
 
+image_rect3 = background_wwcd.get_rect()
+
+# Calcular la posición para centrar la imagen
+tf_x = (MAPA_ANCHO - image_rect3.width) // 2  # Posición X
+tf_y = (MAPA_ALTO - image_rect3.height) // 2  # Posición Y
+
 # Caption and icon
 pygame.display.set_caption("Pac-Man")
 icon = pygame.image.load('PNGs/game.png')
@@ -296,22 +296,6 @@ pacman_Right_img = pygame.image.load('PNGs/pacmanRight.png')    #1
 pacman_Left_img = pygame.image.load('PNGs/pacmanLeft.png')      #2
 pacman_Up_img = pygame.image.load('PNGs/pacmanUp.png')          #3
 pacman_Down_img = pygame.image.load('PNGs/pacmanDown.png')      #4
-
-#cargar imagen Blinky (rojo)
-blinky_left = pygame.image.load('PNGs/BlinkyLeft.png')
-blinky_right = pygame.image.load('PNGs/BlinkyRight.png')
-
-#cargar imagen Pinky (rosa)
-pinky_left = pygame.image.load('PNGs/PinkyLeft.png')
-pinky_right = pygame.image.load('PNGs/PinkyRight.png')
-
-#cargar imagen Inky (cyan)
-inky_left = pygame.image.load('PNGs/InkyLeft.png')
-inky_right = pygame.image.load('PNGs/InkyRight.png')
-
-#cargar imagen Clyde (naranja)
-clyde_left = pygame.image.load('PNGs/ClydeLeft.png')
-clyde_right = pygame.image.load('PNGs/ClydeRight.png')
 
 #cargar imagen de frutas
 apple_img = pygame.image.load('PNGs/apple.png')
@@ -338,61 +322,10 @@ direccion = 2
 # Inicializar dos diccionarios
 diccionario_celdas_puntos= {}        #se modifica con cada movimiento de pacman, elimina por donde va comiendo pacman
 diccionario_celdas_puntos2= {}        #NO se modifica con cada movimiento de pacman, elimina por donde va comiendo pacman
-diccionario_celdas_items = {}        #No se modifica. Para tener presente las celdas en las que se puede mover y pueden haber items
-diccionario_celdas_pared = {}        #No se modifica. Para dibujar el mapa
-
-
-#Supuestamente seria para A*(No tocar)
-# def reconstruir_camino(nodo):
-#     camino = []
-#     while nodo:
-#         camino.append(nodo)
-#         nodo = nodo.anterior  # Retrocede a la celda anterior
-#     return camino[::-1]  # Devuelve el camino en orden desde el inicio al objetivo
-
-
-
-#No tocar(Aunque ahorita no hace nada)
-# def a_star(inicio,objetivo):
-#     sin_procesar = []
-#     procesados = []
-#
-#     # Agrega el nodo inicial
-#     inicio.g = 0
-#     inicio.h = inicio.calcular_distancia(objetivo)
-#     sin_procesar.append(inicio)
-#
-#     while sin_procesar:
-#         # Ordena la lista abierta por f y selecciona el nodo con menor f
-#         sin_procesar.sort(key=lambda celda: celda.calcular_f())
-#         actual = sin_procesar.pop(0)  # Toma el nodo con menor f
-#
-#         # Si hemos llegado al objetivo, podemos reconstruir el camino
-#         if actual == objetivo:
-#             return reconstruir_camino(actual)
-#
-#         procesados.append(actual)
-#
-#         # Para cada vecino
-#         for vecino in [actual.arriba, actual.abajo, actual.izquierda, actual.derecha]:
-#             if vecino is not None and vecino.valor != 'pared' and vecino not in procesados:
-#                 # Calcular g para el vecino
-#                 g_temp = actual.g + 1  # Suponiendo que el costo de moverse a un vecino es 1
-#
-#                 if g_temp < vecino.g:
-#                     # Si el nuevo g es mejor, actualiza
-#                     vecino.g = g_temp
-#                     vecino.h = vecino.calcular_distancia(objetivo)
-#                     vecino.anterior = actual  # Guarda la celda anterior
-#                     if vecino not in sin_procesar:
-#                         sin_procesar.append(vecino)
-#
-#     return None  # No se encontró camino
+diccionario_celdas_items = {}        # Para tener presente las celdas en las que se puede mover y pueden haber items
+diccionario_celdas_pared = {}        #NO se modifica Para dibujar el mapa
 
 import heapq
-
-
-
 
 
 def inicializar_mapa(mapa, cargar_desde_archivo = False):
@@ -458,12 +391,12 @@ def dibujar_mapa(mapa):
             color = (0, 0, 0)
         pygame.draw.rect(screen, color, pygame.Rect(x * ANCHO_CELDA, y * ALTO_CELDA, ANCHO_CELDA, ALTO_CELDA))
 
-    for (x, y) in diccionario_celdas_puntos.keys(): #Dibujar rastro de olor (quitar en version final)
+    for (x, y) in diccionario_celdas_puntos.keys():
         # Comprobar si la celda es 'vacio' y no dibujar nada
         if mapa[y][x].valor == 'vacio':
             continue  # Saltar al siguiente ciclo si la celda es 'vacio'
 
-        # Cambiar color basado en el valor del olor
+
         if mapa[y][x].valor == 'pared':
             color = (23, 56, 110)  # Azul para pared
             pygame.draw.rect(screen, color, pygame.Rect(x * ANCHO_CELDA, y * ALTO_CELDA, ANCHO_CELDA, ALTO_CELDA))
@@ -472,7 +405,7 @@ def dibujar_mapa(mapa):
             # Dibujar el punto si corresponde
             if mapa[y][x].valor == 'punto':
                 punto_color = (255, 255, 255)  # Blanco para el punto
-                punto_size = ANCHO_CELDA // 4  # Tamaño del punto (pedir opinion del tamaño)
+                punto_size = ANCHO_CELDA // 4
                 # Calcular la posicion centrada del cuadrito dentro de la celda
                 punto_x = (x * ANCHO_CELDA) + (ANCHO_CELDA // 2) - (punto_size // 2)
                 punto_y = (y * ALTO_CELDA) + (ALTO_CELDA // 2) - (punto_size // 2)
@@ -480,7 +413,7 @@ def dibujar_mapa(mapa):
                 pygame.draw.rect(screen, punto_color, pygame.Rect(punto_x, punto_y, punto_size, punto_size))
             if mapa[y][x].valor == 'pildora':
                 punto_color = (150, 173, 255)  # morado claro para el punto
-                punto_radio = ANCHO_CELDA // 3  # radio del punto (pedir opinion del tamaño)
+                punto_radio = ANCHO_CELDA // 3  # radio del punto, creo
 
                 # Calcular la posicion centrada del punto dentro de la celda
                 punto_x = (x * ANCHO_CELDA) + (ANCHO_CELDA // 2)  # Centro en X
@@ -495,15 +428,13 @@ def dibujar_mapa(mapa):
                 # Dibujar la fruta
                 screen.blit(cherry3D_img, (punto_x, punto_y))
 
-def is_victoria(mapa): #Verifica si ya no quedan puntos (si ya ganó). Se va a optimizar mas adelante, por ahora dejar asi.
-    # Verificar si quedan celdas con puntos
+def is_victoria(mapa): #Verifica si ya no quedan puntos (si ya ganó)
     if not diccionario_celdas_puntos:
         return True
     return False
 
 # Dibujar a PACMAN en la celda correspondiente (GPT)
 def dibujar_pacman(pacman_x, pacman_y, direccion):
-    # Convertir las coordenadas de la celda a coordenadas en píxeles
     pos_x = pacman_x * ANCHO_CELDA
     pos_y = pacman_y * ALTO_CELDA
     if direccion == 1:
@@ -522,7 +453,7 @@ def dibujar_fantasmas(fantasmas):
 def moverFantasmas(pacman_y, pacman_x,fantasmas):
     for fantasma in fantasmas:
         fantasma.decidir_donde_viajar(mapa[pacman_y][pacman_x],direccion,mapa,fantasmas[0])
-        #TP
+        #Teleport
         if fantasma.celda_actual.id == (12, 0):
             fantasma.celda_actual = mapa[12][25]
         if fantasma.celda_actual.id == (12, 26):
@@ -551,21 +482,17 @@ def game_over():
 def victoria():
     screen.fill((255, 255, 255))  # RGB
     screen.blit(background_wwcd, (inicio_x, inicio_y))
+    mixer.music.load('musica/stage_clear.wav')
+    mixer.music.play()
     pygame.display.flip()
-    pygame.time.wait(2000)
+    pygame.time.wait(6000)
 
 def subir_nivel():
     screen.fill((255, 255, 255))  # RGB
-    screen.blit(background_inicio, (inicio_x, inicio_y))
+    screen.blit(tigre_feliz, (tf_x, tf_y))
     pygame.display.flip()
     pygame.time.wait(1000)
     reset_mapa()
-
-
-# Reducir olor de todas las celdas conforme camina PACMAN
-def reducir_olor(mapa):
-    for (x,y) in diccionario_celdas_items.keys():
-        mapa[y][x].decrementar_olor()
 
 def aumentar_puntos():
     global puntos
@@ -582,7 +509,7 @@ def mover_pacman(mapa, pacman_x, pacman_y, direccion, velocidad):
     if direccion == 4 and pacman_y < len(mapa) - 1 and mapa[pacman_y + 1][pacman_x].valor != 'pared':  # Abajo
         pacman_y += velocidad
 
-    # Cuando pasa PACMAN, actualiza valor, eliminca del diccionario y hace sonido de CHOMP (suena horrible pero es lo que hay)
+    # Cuando pasa PACMAN, actualiza valor, elimina del diccionario y hace sonido de CHOMP (suena horrible pero es lo que hay)
     pos_actual = (pacman_x, pacman_y)
     if pos_actual in diccionario_celdas_puntos:
 
@@ -779,8 +706,8 @@ while running:
         if pacman_x == 0 and pacman_y == 12:
             print("TP")
             pos_tp = (25, 12)
-            pos_previa_tp = (26, 12) #en realidad es la posicion siguiente, pero con respecto al pacman es la que le queda de espaldas
-            pacman_x = 25   #Porque 25? Se esta saltando la celda 26, si se cambia da error, pero no entiendo porque(Creo que es para que no se encicle)
+            pos_previa_tp = (26, 12)
+            pacman_x = 25
             if pos_tp in diccionario_celdas_puntos:
                 # xy-> 25,12 y 26,12 vacio en tp
                 mapa[pacman_y][pacman_x].valor = 'vacio'
@@ -830,12 +757,9 @@ while running:
     dibujar_pacman(pacman_x, pacman_y, direccion)
     dibujar_fantasmas(fantasmas)
     dibujar_vidas(vidas)
-    n+=1    #cantidad de iteraciones
-    #print(mapa[pacman_y][pacman_x].id, mapa[pacman_y-1][pacman_x-1].olor, mapa[pacman_y][pacman_x].olor, n, pacman_x, pacman_y, nivel)
-    #creo que mapa[pacman_y-1][pacman_x-1].olor, es un poco ilogico porque al ser y-1 x-1, estaria en diagonal de Pacman
-
+    n+=1
     if is_victoria(mapa):
-        if not nivel_completado:  # Solo sube de nivel si no ha sido completado
+        if not nivel_completado:  # Solo sube de nivel si no se ha completado
             if nivel == 1:
                 nivel += 1
                 print ('nivel')
@@ -846,7 +770,7 @@ while running:
                 subir_nivel()
                 time_delay = 160
 
-                nivel_completado = True  # Marcar como completado
+                nivel_completado = True
 
             elif nivel == 2:
                 nivel += 1
@@ -867,7 +791,7 @@ while running:
                 running = False
 
         else:
-            # Si nivel ya fue completado, no hace nada hasta el siguiente nivel
+            # si nivel ya fue completado, no hace nada hasta el siguiente nivel
             print(nivel)
             pass
 
@@ -878,11 +802,10 @@ while running:
     if vidas == 0:
         game_over()
 
-    #texto_vidas = fuente_vidas_puntos.render(f'Vidas: {vidas}', True, (255, 255, 255))
     texto_puntos = fuente_vidas_puntos.render(f'Puntos: {puntos}', True, (255, 255, 255))
     screen.blit(texto_puntos, (660, 8))  # arriba izq
 
-    # Actualizar la pantalla
+    # actualizar la pantalla
     pygame.display.flip()
-    #controlar velocidad
+    #coontrolar velocidad
     pygame.time.delay(200)
