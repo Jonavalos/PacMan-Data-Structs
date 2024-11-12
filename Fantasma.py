@@ -52,7 +52,7 @@ class Blinky(Fantasma):     #Esquina abajo derecha
         self.modo = 'scatter'
 
 
-    def decidir_donde_viajar(self, destino,direccion=0,mapa=None,blinky=None):
+    def decidir_donde_viajar(self, destino,direccion=0,mapa=None,blinky=None): #GPT
         if self.modo == 'chase':
             camino = self.celda_actual.a_star_sin_devolverse(self.celda_actual,destino,self.celda_anterior)
             if camino is None:
@@ -134,7 +134,7 @@ class Pinky(Fantasma): #(Rosa): Intenta predecir la dirección de Pacman y corta
         self.modo = 'scatter'
 
 
-    def decidir_donde_viajar(self,destino,direccion=0,mapa=None,blinky=None):     # Dirección: 1Left 2Right 3Up 4Down
+    def decidir_donde_viajar(self,destino,direccion=0,mapa=None,blinky=None):  #GPT   # Dirección: 1Left 2Right 3Up 4Down
         if self.modo == 'chase':
             # Diccionario para seleccionar `des` basado en la dirección
             des = destino
@@ -230,7 +230,7 @@ class Inky(Fantasma):   #(Cian): Utiliza tanto la posición de Pacman como la de
         self.imagen_Actual = self.imagen[0]
         self.modo = 'scatter'
 
-    def decidir_donde_viajar(self,destino,direccion=0,mapa=None,blinky = None):
+    def decidir_donde_viajar(self,destino,direccion=0,mapa=None,blinky = None): #GPT
         if self.modo == 'chase':
             fila_max = len(mapa) - 2
             col_max = len(mapa[0]) - 2
@@ -349,7 +349,7 @@ class Clyde(Fantasma):  # (Naranja): Se comporta de manera errática, a veces pe
         self.imagen_Actual = self.imagen[0]
         self.modo = 'scatter'
 
-    def decidir_donde_viajar(self, destino,direccion=0,mapa=None,blinky=None):
+    def decidir_donde_viajar(self, destino,direccion=0,mapa=None,blinky=None): #GPT
         if self.modo == 'chase':
             camino = self.celda_actual.a_star_sin_devolverse(self.celda_actual,destino,self.celda_anterior)
             if camino is None:

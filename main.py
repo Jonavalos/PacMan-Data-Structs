@@ -1,3 +1,24 @@
+
+"""
+ El movimiento de pacman, colisiones, objetos en el mapa fueron basados en un juego
+ creado previamente por los integrantes (Space Invaders).
+ Los algoritmos de búsqueda y fórmulas fueron hechos con ayuda de inteligencia artificial.
+ Las imágenes y sonidos fueron extraídos de internet o creados con inteligencia artificial.
+
+
+
+
+Integrantes:
+Jonathan Avalos Montero
+Josué Pineda Quesada
+Fernando Santamaría Leiva
+
+
+ """
+
+
+
+
 import os
 from pickle import GLOBAL
 import time
@@ -18,7 +39,7 @@ tiempo_multiplicador = None
 multiplicador = False
 tiempo_spawn_fruta = None
 
-def escoger_par_aleatorio2(diccionario):
+def escoger_par_aleatorio2(diccionario): #GPT
     # Convierte las claves del diccionario en una lista de pares
     pares = list(diccionario.keys())
     # Escoge un par aleatorio
@@ -44,7 +65,7 @@ is_paused = False
 puntos=0
 nivel = 1
 velocidad_juego=200
-vidas = 10
+vidas = 3
 fuente_vidas_puntos = pygame.font.Font(None, 30) #representa puntos o vida como texto
 corazon_img = pygame.image.load('PNGs/corazon.png')
 gameOver_img = pygame.image.load('PNGs/gameOver2.png')
@@ -63,12 +84,12 @@ estado_juego = {"Score: ": puntos, "nivel: ": nivel, "vidas: ": vidas}
 save_file = "savegame.pkl"
 
 # Cargar el archivo del juego si es que llegara a haber 1 partida guardada
-if os.path.exists(save_file):
+if os.path.exists(save_file): #GPT
     with open(save_file, 'rb') as file:
         estado_juego = pickle.load(file)
 
 #guardar el estado del juego
-def guardar_partida():
+def guardar_partida(): #GPT
     print("Guardando partida")
     estado_juego = {
         "diccionario_celdas_puntos": diccionario_celdas_puntos,
@@ -97,7 +118,7 @@ def guardar_partida():
     print("Partida guardada.")
 
 #Funcion encargada de cargar el estado del juego
-def cargar_partida():
+def cargar_partida(): #GPT
     global diccionario_celdas_puntos, diccionario_celdas_puntos2, diccionario_celdas_items, diccionario_celdas_pared, puntos, vidas, posicion_guardada_x, posicion_guardada_y
     global Blinky_celda_actual_X, Blinky_celda_actual_Y, Pinky_celda_actual_X,Pinky_celda_actual_Y,Inky_celda_actual_X,Inky_celda_actual_Y,Clyde_celda_actual_X,Clyde_celda_actual_Y
     if os.path.exists(save_file):
@@ -180,7 +201,7 @@ def mostrar_menu():
 
 
 # Funcion para manejar el menu en pausa del juego
-def manejar_menu():
+def manejar_menu(): #GPT
     global is_paused
     mostrar_menu()
     seleccion = 0
@@ -221,7 +242,7 @@ def manejar_menu():
             pygame.display.flip()
 
 #Funcion para manejar el menu del inicio del juego
-def manejar_menu_inicio():
+def manejar_menu_inicio(): #GPT
     global continuar_partida
     seleccion = 0
     font = pygame.font.Font("fonts\Silkscreen-Bold.ttf", 45)
@@ -268,18 +289,18 @@ def manejar_menu_inicio():
 
 # Obtener las dimensiones de las imagenes para centrarlas
 
-image_rect = background_inicio.get_rect()
+image_rect = background_inicio.get_rect()#GPT
 # Calcular la posición para centrar la imagen
 inicio_x = (MAPA_ANCHO - image_rect.width) // 2  # Posición X
 inicio_y = (MAPA_ALTO - image_rect.height) // 2  # Posición Y
 
-image_rect2 = background_wwcd.get_rect()
+image_rect2 = background_wwcd.get_rect()#GPT
 
 # Calcular la posición para centrar la imagen
 wwcd_x = (MAPA_ANCHO - image_rect2.width) // 2  # Posición X
 wwcd_y = (MAPA_ALTO - image_rect2.height) // 2  # Posición Y
 
-image_rect3 = background_wwcd.get_rect()
+image_rect3 = background_wwcd.get_rect()#GPT
 
 # Calcular la posición para centrar la imagen
 tf_x = (MAPA_ANCHO - image_rect3.width) // 2  # Posición X
@@ -406,7 +427,7 @@ def dibujar_mapa(mapa):
             if mapa[y][x].valor == 'punto':
                 punto_color = (255, 255, 255)  # Blanco para el punto
                 punto_size = ANCHO_CELDA // 4
-                # Calcular la posicion centrada del cuadrito dentro de la celda
+                # Calcular la posicion centrada del cuadrito dentro de la celda #GPT
                 punto_x = (x * ANCHO_CELDA) + (ANCHO_CELDA // 2) - (punto_size // 2)
                 punto_y = (y * ALTO_CELDA) + (ALTO_CELDA // 2) - (punto_size // 2)
                 # Dibujar el cuadrito blanco
@@ -415,14 +436,14 @@ def dibujar_mapa(mapa):
                 punto_color = (150, 173, 255)  # morado claro para el punto
                 punto_radio = ANCHO_CELDA // 3  # radio del punto, creo
 
-                # Calcular la posicion centrada del punto dentro de la celda
+                # Calcular la posicion centrada del punto dentro de la celda #GPT
                 punto_x = (x * ANCHO_CELDA) + (ANCHO_CELDA // 2)  # Centro en X
                 punto_y = (y * ALTO_CELDA) + (ALTO_CELDA // 2)  # Centro en Y
 
                 # Dibujar el círculo
                 pygame.draw.circle(screen, punto_color, (punto_x, punto_y), punto_radio)
             if mapa[y][x].valor == 'fruta':
-                # Calcular la posicion centrada del punto dentro de la celda
+                # Calcular la posicion centrada del punto dentro de la celda #GPT
                 punto_x = (x * ANCHO_CELDA)
                 punto_y = (y * ALTO_CELDA)
                 # Dibujar la fruta
@@ -731,21 +752,21 @@ while running:
 
         # Dibujar el mapa y a PACMAN
 
-        if tiempo_liberar is not None:
+        if tiempo_liberar is not None: #GPT
             tiempo_transcurrido = int(time.time() - tiempo_liberar)
             if tiempo_transcurrido >= 10:
                 tiempo_liberar = None
                 tiempo_transcurrido = None
                 chase_fantasmas()
 
-        if tiempo_multiplicador is not None:
+        if tiempo_multiplicador is not None: #GPT
             tiempo_transcurrido2 = int(time.time() - tiempo_multiplicador)
             if tiempo_transcurrido2 >= 7:
                 tiempo_multiplicador = None
                 tiempo_transcurrido2 = None
                 multiplicador_off()
 
-        if tiempo_spawn_fruta is not None:
+        if tiempo_spawn_fruta is not None: #GPT
             tiempo_transcurrido3 = int(time.time() - tiempo_spawn_fruta)
             if tiempo_transcurrido3 >= 7:
                 tiempo_spawn_fruta = None

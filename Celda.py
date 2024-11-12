@@ -15,24 +15,13 @@ class Celda:
         self.anterior = None
         self.g = float('inf')
 
-
-    def incrementar_olor(self):
-        #Establece el valor de olor al máximo cuando Pac-Man pasa por la celda.
-        if self.valor != 'pared':  # Solo incrementa si no es una pared
-            self.olor = 30
-
-    def decrementar_olor(self):
-        #Decrementa el valor de olor hasta llegar a cero.
-        if self.olor > 0:
-            self.olor -= 1
-
     def __repr__(self):
         return f"Celda(id={self.id}, valor={self.valor}, olor={self.olor})"
 
     def calcular_distancia(self, objetivo):    #Retorna la distancia hasta el nodo destino
         return abs(self.id[0] - objetivo.id[0]) + abs(self.id[1] - objetivo.id[1])
 
-    def calcular_f(self,objetivo):
+    def calcular_f(self,objetivo): #GPT
         return self.g + self.calcular_distancia(objetivo)
 
     def setAnterior(self,celda):
@@ -57,79 +46,6 @@ class Celda:
             return self.id == other.id
         return False
 
-    # def a_star(self,inicio, objetivo):
-    #     sin_procesar = []
-    #     procesados = set()  # Usamos set para búsquedas más rápidas
-    #
-    #     inicio.g = 0
-    #     # Guardamos tuplas de (f_valor, celda) en la cola de prioridad
-    #     heapq.heappush(sin_procesar, (inicio.calcular_f(objetivo), inicio))
-    #
-    #     # Mantener un conjunto de celdas en sin_procesar para búsqueda rápida
-    #     celdas_en_sin_procesar = {inicio}
-    #
-    #     while sin_procesar:
-    #         _, actual = heapq.heappop(sin_procesar)
-    #         celdas_en_sin_procesar.remove(actual)
-    #
-    #         if actual == objetivo:
-    #             return self.reconstruir_camino(actual)
-    #
-    #         procesados.add(actual)
-    #
-    #         for vecino in [actual.arriba, actual.abajo, actual.izquierda, actual.derecha]:
-    #             if vecino and vecino.valor != 'pared' and vecino not in procesados:
-    #                 nuevo_g = actual.g + 1
-    #
-    #                 if vecino not in celdas_en_sin_procesar:
-    #                     vecino.setAnterior(actual)
-    #                     f_valor = vecino.calcular_f(objetivo)
-    #                     heapq.heappush(sin_procesar, (f_valor, vecino))
-    #                     celdas_en_sin_procesar.add(vecino)
-    #                 elif nuevo_g < vecino.g:
-    #                     # Si encontramos un mejor camino
-    #                     vecino.setAnterior(actual)
-    #                     # Agregar nueva versión con f actualizado
-    #                     f_valor = vecino.calcular_f(objetivo)
-    #                     heapq.heappush(sin_procesar, (f_valor, vecino))
-    #
-    #     return None
-
-    # def a_star(self, inicio, objetivo):
-    #     # Estructura de datos para mantener los nodos por procesar
-    #     sin_procesar = []
-    #     heapq.heappush(sin_procesar, (0, inicio))
-    #
-    #     # Diccionarios para llevar la cuenta de costos
-    #     costo_g = {inicio: 0}
-    #     padres = {inicio: None}
-    #
-    #     while sin_procesar:
-    #         # Obtener el nodo con el costo f más bajo
-    #         _, actual = heapq.heappop(sin_procesar)
-    #
-    #         # Verificar si se ha alcanzado el objetivo
-    #         if actual == objetivo:
-    #             return self.reconstruir_ruta(padres, actual)
-    #
-    #         for vecino in actual.vecinos:
-    #             # Calcular el costo g del vecino
-    #             nuevo_costo_g = costo_g[actual] + 1  # Suponiendo un costo uniforme de 1 para cada movimiento
-    #
-    #             # Solo considerar el nuevo vecino si es más barato o no está en la lista
-    #             if vecino not in costo_g or nuevo_costo_g < costo_g[vecino]:
-    #                 costo_g[vecino] = nuevo_costo_g
-    #                 f_valor = nuevo_costo_g + vecino.calcular_heuristica(objetivo)
-    #                 padres[vecino] = actual
-    #
-    #                 # Agregar a la lista de nodos a procesar
-    #                 heapq.heappush(sin_procesar, (f_valor, vecino))
-    #
-    #                 # Limitar el tamaño de sin_procesar a 10
-    #                 if len(sin_procesar) > 10:
-    #                     sin_procesar = sorted(sin_procesar)[:10]  # Mantener solo los 10 mejores
-    #
-    #     return []  # Si no se encuentra una ruta
     def getVecino(self, num):
         vecino = {
             1: self.izquierda,
@@ -140,7 +56,7 @@ class Celda:
         return vecino[num]
 
 
-    def a_star(self, inicio, objetivo):
+    def a_star(self, inicio, objetivo): #GPT
         sin_procesar = []
         procesados = []
 
@@ -175,7 +91,7 @@ class Celda:
 
         return None  # Si no se encuentra un camino de 10 celdas
 
-    def a_star_sin_devolverse(self, inicio, objetivo, nodo_anterior):
+    def a_star_sin_devolverse(self, inicio, objetivo, nodo_anterior): #GPT
         sin_procesar = []
         procesados = []
 
@@ -233,7 +149,7 @@ class Celda:
 
     # Si no se encuentra un camino de 10 celdas
 
-    def reconstruir_ruta(self, padres, nodo_actual):
+    def reconstruir_ruta(self, padres, nodo_actual): #GPT
         ruta = []
         while nodo_actual is not None:
             ruta.append(nodo_actual)
@@ -260,7 +176,7 @@ class Celda:
         return random.choice(vecinos_validos)
 
 
-    def a_star_evitar_celda(self, inicio, objetivo, celda_a_evitar):
+    def a_star_evitar_celda(self, inicio, objetivo, celda_a_evitar): #GPT
         sin_procesar = []
         procesados = []
 
@@ -300,7 +216,7 @@ class Celda:
 
         return None  # Si no se encuentra una ruta
 
-    def a_star_combinar_estrategias(self, inicio, objetivo, nodo_anterior, celda_a_evitar=None):
+    def a_star_combinar_estrategias(self, inicio, objetivo, nodo_anterior, celda_a_evitar=None): #GPT
         sin_procesar = []
         procesados = []
 
