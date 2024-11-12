@@ -11,7 +11,7 @@ from pygame.examples.testsprite import Static
 
 from Mapa import *
 n=0
-tiempo_liberar = None
+tiempo_liberar = None #para volver a chase
 
 #FRUTAS & Multiplicador
 tiempo_multiplicador = None
@@ -120,16 +120,33 @@ def cargar_partida():
                 posicion_guardada_y = estado_juego.get('pacman_y')
                 Blinky_celda_actual_X = estado_juego.get("Blinky_celda_actual_X", 13)
                 Blinky_celda_actual_Y = estado_juego.get("Blinky_celda_actual_Y", 10)
-                fantasmas[0].modo = estado_juego.get("Blinky_modo", 'chase')
+                fantasmas[0].modo = estado_juego.get("Blinky_modo")
                 Pinky_celda_actual_X = estado_juego.get("Pinky_celda_actual_X", 1)
                 Pinky_celda_actual_Y = estado_juego.get("Pinky_celda_actual_Y", 24)
-                fantasmas[1].modo = estado_juego.get("Pinky_modo", 'chase')
+                fantasmas[1].modo = estado_juego.get("Pinky_modo")
                 Inky_celda_actual_X = estado_juego.get("Inky_celda_actual_X", 1)
                 Inky_celda_actual_Y = estado_juego.get("Inky_celda_actual_Y", 1)
-                fantasmas[2].modo = estado_juego.get("Inky_modo", 'chase')
+                fantasmas[2].modo = estado_juego.get("Inky_modo")
                 Clyde_celda_actual_X = estado_juego.get("Clyde_celda_actual_X", 25)
                 Clyde_celda_actual_Y = estado_juego.get("Clyde_celda_actual_Y", 1)
-                fantasmas[3].modo = estado_juego.get("Clyde_modo", 'chase')
+                fantasmas[3].modo = estado_juego.get("Clyde_modo")
+                asustar = False
+                i = 0
+                v = []
+                for fantasma in fantasmas:
+                    if fantasma.modo == 'frightened':
+                        asustar = True
+                    if fantasma.modo == 'chase':
+                        v.append(i)
+                    i+=1
+                if asustar:
+                    global tiempo_liberar
+                    tiempo_liberar = time.time()
+                    asustar_fantasmas()
+
+                for num in v:
+                    fantasmas[num].modo = 'chase'
+
                 if fantasmas:
                     fantasma_celda = mapa[Blinky_celda_actual_Y][Blinky_celda_actual_X]
                     fantasmas[0].celda_actual = fantasma_celda
